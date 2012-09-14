@@ -10,6 +10,7 @@
 #include "window.h"
 #include "eventnames.h"
 #include "decorations.h"
+#include "pool.h"
 
 static void logError(const char *format, ... ) {
 	size_t len = strlen(format) + strlen(LOG_PREFIX);
@@ -37,6 +38,8 @@ int main (int argc, const char * argv[]) {
 	XWindowAttributes attr;
     XButtonEvent start;
 
+	ManagedWindowPool *pool = createPool();
+	
 	/* Set up */
 	XSetErrorHandler(dealWithIt);
 
@@ -93,12 +96,18 @@ int main (int argc, const char * argv[]) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
 				resizeWindow(display, screen, ev.xcreatewindow.window,
-							 1000, 1000);
+							 500, 500);
 				repositionWindow(display, screen, ev.xcreatewindow.window,
-								 0, 0, 1000, 1000);
-				decorateWindow(display, ev.xcreatewindow.window, root, ev.xcreatewindow.x, ev.xcreatewindow.y, ev.xcreatewindow.width, ev.xcreatewindow.height);
+								 500, 500, 0, 0);
+				Window deco = decorateWindow(display, ev.xcreatewindow.window, root, ev.xcreatewindow.x, ev.xcreatewindow.y, ev.xcreatewindow.width, ev.xcreatewindow.height);
 				
+				addWindowToPool(deco, ev.xcreatewindow.window, pool);
 			} break;
+			case Expose: {
+				if (isMemberOfPool(ev.xexpose.window, pool)) {
+					drawDecorations(display, ev.xexpose.window, "expose_draw");
+				}
+			}
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
@@ -106,6 +115,7 @@ int main (int argc, const char * argv[]) {
 	}
 	
 	XCloseDisplay(display);
-
+	freePool(pool);
+	
 	return 0;
 }
