@@ -8,13 +8,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "pool.h"
 
 ManagedWindowPool *createPool(void) {
 	ManagedWindowPool *pool = malloc(sizeof(ManagedWindowPool));
-	memset(pool, 0, sizeof *pool);
+	pool->windows = NULL;
+	pool->len = 0;
 	return pool;
 }
 
@@ -25,8 +25,8 @@ void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindow
 		return;
 	}
 	
-	pool->windows[pool->len].decorationWindow = decorationWindow;
-	pool->windows[pool->len].actualWindow = actualWindow;
+	pool->windows[pool->len - 1].decorationWindow = decorationWindow;
+	pool->windows[pool->len - 1].actualWindow = actualWindow;
 }
 
 int isMemberOfPool(Window window, ManagedWindowPool *pool) {
