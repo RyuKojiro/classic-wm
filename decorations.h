@@ -10,6 +10,6 @@
 #define _decorations_h
 
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height);
-void drawDecorations(Display *display, Window window);
+void drawDecorations(Display *display, Window window, const char *title);
 
 #endif
