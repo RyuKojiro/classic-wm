@@ -46,14 +46,14 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	}
 	XSetFont(display, gc, font->fid);
 	int twidth = XTextWidth(font, title, (int)strlen(title));
+		
+	// Get dimensions
+	XGetWindowAttributes(display, window, &attribs);
 	
 	if (attribs.width < (twidth + 42)) {
 		titleWillFit = 0;
 	}
-	
-	// Get dimensions
-	XGetWindowAttributes(display, window, &attribs);
-	
+
 	// Draw bounding box
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, 1, 1, attribs.width - 3, 19 - 2);
