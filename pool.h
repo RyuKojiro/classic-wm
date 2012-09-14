@@ -11,14 +11,22 @@
 
 #include <X11/Xlib.h>
 
-typedef struct {
+struct ManagedWindow_s {
 	Window decorationWindow;
 	Window actualWindow;
-} ManagedWindow;
+};
 
-typedef struct {
+typedef struct ManagedWindow_s ManagedWindow;
+
+struct ManagedWindowPool_s {
 	ManagedWindow *windows;
 	int len;
-} ManagedWindowPool;
+};
+
+typedef struct ManagedWindowPool_s ManagedWindowPool;
+
+ManagedWindowPool *createPool(void);
+void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool);
+void freePool(ManagedWindowPool *pool);
 
 #endif
