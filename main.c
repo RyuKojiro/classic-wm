@@ -96,7 +96,7 @@ int main (int argc, const char * argv[]) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
 				resizeWindow(display, screen, ev.xcreatewindow.window,
-							 500, 500);
+							 483, 315);
 				repositionWindow(display, screen, ev.xcreatewindow.window,
 								 500, 500, 0, 0);
 				Window deco = decorateWindow(display, ev.xcreatewindow.window, root, ev.xcreatewindow.x, ev.xcreatewindow.y, ev.xcreatewindow.width, ev.xcreatewindow.height);
