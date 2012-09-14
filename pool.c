@@ -29,6 +29,15 @@ void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindow
 	pool->windows[pool->len].actualWindow = actualWindow;
 }
 
+int isMemberOfPool(Window window, ManagedWindowPool *pool) {
+	for (int i = 0; i < pool->len; i++) {
+		if (window == pool->windows[i].decorationWindow) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 void freePool(ManagedWindowPool *pool) {
 	free(pool);
 }

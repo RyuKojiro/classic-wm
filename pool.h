@@ -28,5 +28,6 @@ typedef struct ManagedWindowPool_s ManagedWindowPool;
 ManagedWindowPool *createPool(void);
 void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool);
 void freePool(ManagedWindowPool *pool);
+int isMemberOfPool(Window window, ManagedWindowPool *pool);
 
 #endif
