@@ -112,6 +112,11 @@ int main (int argc, const char * argv[]) {
 						downState = MouseDownStateClose;
 					}
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
+						GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
+						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
+						XFlush(display);
+						XFreeGC(display, gc);
+
 						downState = MouseDownStateMaximize;
 					}					
 					
@@ -148,7 +153,21 @@ int main (int argc, const char * argv[]) {
 						}
 						XFlush(display);
 						XFreeGC(display, gc);
-					}
+					} break;
+					case MouseDownStateMaximize: {
+						int x, y;
+						x = ev.xbutton.x_root - attr.x;
+						y = ev.xbutton.y_root - attr.y;
+						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
+						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
+							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);							
+						}
+						else {
+							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
+						}
+						XFlush(display);
+						XFreeGC(display, gc);
+					} break;
 					default:
 						break;
 				}
@@ -160,6 +179,12 @@ int main (int argc, const char * argv[]) {
 					case MouseDownStateClose: {
 						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
+						XFlush(display);
+						XFreeGC(display, gc);
+					} break;
+					case MouseDownStateMaximize: {
+						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
+						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 						XFlush(display);
 						XFreeGC(display, gc);
 					} break;
