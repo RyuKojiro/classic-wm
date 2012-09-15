@@ -31,6 +31,9 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	
 	XReparentWindow(display, window, newParent, 0, TITLEBAR_THICKNESS - 1);
 	
+	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
+	XDefineCursor(display, newParent, cur);
+	
 	XMapWindow(display, newParent);
 	
 	char *title;

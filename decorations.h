@@ -21,6 +21,9 @@
 #define RECT_CLOSE_BTN			9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #define RECT_MAX_BTN			attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 
+// Cursors
+#define XC_left_ptr 68
+
 // Functions
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height);
 void drawDecorations(Display *display, Window window, const char *title);
