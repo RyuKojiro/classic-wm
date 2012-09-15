@@ -11,6 +11,10 @@
 #include <string.h>
 #include "decorations.h"
 
+#define TITLEBAR_CONTROL_SIZE	11
+#define TITLEBAR_TEXT_SIZE		15
+#define TITLEBAR_TEXTURE_START	4
+
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height) {
 	Window newParent;
 	XSetWindowAttributes attrib;
@@ -61,36 +65,48 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XDrawRectangle(display, window, gc, 0, 0, attribs.width - 2, 19 - 1);
 	
 	// Draw texture
-	for (int y = 4; y < 15; y += 2) {
+	for (int y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += 2) {
 		XDrawLine(display, window, gc, 2, y, attribs.width - 4, y);
 	}
 	
 	// White out areas for buttons and title
 	XSetForeground(display, gc, white);
 	// Close button
-	XFillRectangle(display, window, gc, 8, 4, 13, 11);
+	XFillRectangle(display, window, gc, 8, 4, TITLEBAR_CONTROL_SIZE + 2, TITLEBAR_CONTROL_SIZE);
 	// Title
 	if (titleWillFit) {
-		XFillRectangle(display, window, gc, ((attribs.width - twidth)/ 2) - 7, 4, twidth + 14, 11);
+		XFillRectangle(display, window, gc, ((attribs.width - twidth)/ 2) - 7, 4, twidth + 14, TITLEBAR_CONTROL_SIZE);
 	}
 	// Maximize button
-	XFillRectangle(display, window, gc, attribs.width - 22, 4, 13, 11);
+	XFillRectangle(display, window, gc,
+				   attribs.width - (TITLEBAR_CONTROL_SIZE + 11),
+				   4,
+				   TITLEBAR_CONTROL_SIZE + 2,
+				   TITLEBAR_CONTROL_SIZE);
 	// Subwindow box
 	XFillRectangle(display, window, gc, 1, 19, attribs.width - 3, attribs.height - 21);
 	
 	// Draw buttons and title
 	XSetForeground(display, gc, black);
 	// Draw close button
-	XDrawRectangle(display, window, gc, 9, 4, 10, 10);
+	XDrawRectangle(display, window, gc,
+				   9,
+				   4,
+				   TITLEBAR_CONTROL_SIZE - 1,
+				   TITLEBAR_CONTROL_SIZE - 1);
 	// Draw Maximize Button
-	XDrawRectangle(display, window, gc, attribs.width - 21, 4, 10, 10);
+	XDrawRectangle(display, window, gc,
+				   attribs.width - (10 + TITLEBAR_CONTROL_SIZE),
+				   4,
+				   TITLEBAR_CONTROL_SIZE - 1,
+				   TITLEBAR_CONTROL_SIZE - 1);
 	XDrawRectangle(display, window, gc, attribs.width - 21, 4, 6, 6);
-	
+
 	// Draw title
 	if (titleWillFit) {
 		XSetForeground(display, gc, black);
 		XSetBackground(display, gc, white);
-		XDrawString(display, window, gc, ((attribs.width - twidth)/ 2), 15, title, (int)strlen(title));
+		XDrawString(display, window, gc, ((attribs.width - twidth)/ 2), TITLEBAR_TEXT_SIZE, title, (int)strlen(title));
 	}
 	
 	XFlush(display);
