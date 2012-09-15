@@ -72,21 +72,37 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */);
+	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */ | ButtonPressMask | ButtonMotionMask);
 
-	//XGrabButton(display, 1, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync,
-	//			GrabModeAsync, None, None);
+	XGrabButton(display, 1, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
     for(;;)
     {
         XNextEvent(display, &ev);
 				
 		switch (ev.type) {
-			/*case ButtonPress: {
+			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
-					XRaiseWindow(display, ev.xkey.subwindow);
+					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+					XRaiseWindow(display, mw->decorationWindow);
+					XGrabPointer(display, ev.xbutton.subwindow, True,
+								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+								 GrabModeAsync, None, None, CurrentTime);
+					XGetWindowAttributes(display, ev.xbutton.subwindow, &attr);
+					start = ev.xbutton;
 				}
-			} break;*/
+			} break;
+			case MotionNotify: {
+				int xdiff, ydiff;
+				while(XCheckTypedEvent(display, MotionNotify, &ev));
+				xdiff = ev.xbutton.x_root - start.x_root;
+				ydiff = ev.xbutton.y_root - start.y_root;
+				XMoveResizeWindow(display, ev.xmotion.window,
+								  attr.x + (start.button==1 ? xdiff : 0),
+								  attr.y + (start.button==1 ? ydiff : 0),
+								  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
+								  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
+			} break;
 			case ConfigureNotify:
 			case CreateNotify: {
 				if (ev.xcreatewindow.override_redirect) {
@@ -104,10 +120,10 @@ int main (int argc, const char * argv[]) {
 				addWindowToPool(deco, ev.xcreatewindow.window, pool);
 			} break;
 			case Expose: {
-				if (isMemberOfPool(ev.xexpose.window, pool)) {
+				if (managedWindowForWindow(ev.xexpose.window, pool)) {
 					drawDecorations(display, ev.xexpose.window, "expose_draw");
 				}
-			}
+			} break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
