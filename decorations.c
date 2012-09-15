@@ -126,10 +126,14 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XFreeGC(display, gc);
 }
 
-void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, int w, int h){
 	// White out bg
 	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
+	XFillRectangle(display, window, gc, x - 1, y, w + 3, h + 1);
+}
+
+void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+	whiteOutUnderButton(display, window, gc, x, y, w, h);
 	
 	// Draw Border
 	XSetForeground(display, gc, black);
@@ -140,10 +144,8 @@ void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, in
 }
 
 void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
-	// White out bg
-	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
-	
+	whiteOutUnderButton(display, window, gc, x, y, w, h);
+
 	// Draw Border
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
