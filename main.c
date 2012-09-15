@@ -72,7 +72,7 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */ | ButtonPressMask | ButtonMotionMask);
+	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */);
 
 	XGrabButton(display, 1, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
@@ -102,6 +102,9 @@ int main (int argc, const char * argv[]) {
 								  attr.y + (start.button==1 ? ydiff : 0),
 								  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
 								  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
+			} break;
+			case ButtonRelease: {
+				XUngrabPointer(display, CurrentTime);
 			} break;
 			case ConfigureNotify:
 			case CreateNotify: {
