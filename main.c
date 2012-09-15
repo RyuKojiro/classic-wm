@@ -10,6 +10,7 @@
 #include "window.h"
 #include "eventnames.h"
 #include "decorations.h"
+#include "pool.h"
 
 static void logError(const char *format, ... ) {
 	size_t len = strlen(format) + strlen(LOG_PREFIX);
@@ -37,6 +38,8 @@ int main (int argc, const char * argv[]) {
 	XWindowAttributes attr;
     XButtonEvent start;
 
+	ManagedWindowPool *pool = createPool();
+	
 	/* Set up */
 	XSetErrorHandler(dealWithIt);
 
@@ -71,33 +74,58 @@ int main (int argc, const char * argv[]) {
 	
 	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */);
 
-	//XGrabButton(display, 1, Mod1Mask, root, True, ButtonPressMask, GrabModeAsync,
-	//			GrabModeAsync, None, None);
+	XGrabButton(display, 1, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
     for(;;)
     {
         XNextEvent(display, &ev);
 				
 		switch (ev.type) {
-			/*case ButtonPress: {
+			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
-					XRaiseWindow(display, ev.xkey.subwindow);
+					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+					// Check for close button or maximize button
+					XRaiseWindow(display, mw->decorationWindow);
+					XGrabPointer(display, ev.xbutton.subwindow, True,
+								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+								 GrabModeAsync, None, None, CurrentTime);
+					XGetWindowAttributes(display, ev.xbutton.subwindow, &attr);
+					start = ev.xbutton;
 				}
-			} break;*/
-			case ConfigureNotify:
-			case CreateNotify: {
-				if (ev.xcreatewindow.override_redirect) {
+			} break;
+			case MotionNotify: {
+				int xdiff, ydiff;
+				while(XCheckTypedEvent(display, MotionNotify, &ev));
+				xdiff = ev.xbutton.x_root - start.x_root;
+				ydiff = ev.xbutton.y_root - start.y_root;
+				XMoveResizeWindow(display, ev.xmotion.window,
+								  attr.x + (start.button==1 ? xdiff : 0),
+								  attr.y + (start.button==1 ? ydiff : 0),
+								  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
+								  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
+			} break;
+			case ButtonRelease: {
+				XUngrabPointer(display, CurrentTime);
+			} break;
+			case ConfigureNotify: {
+				if (ev.xconfigure.override_redirect) {
 					break;
 				}
-				if (!ev.xcreatewindow.window) {
+				if (!ev.xconfigure.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				resizeWindow(display, screen, ev.xcreatewindow.window,
-							 1000, 1000);
-				repositionWindow(display, screen, ev.xcreatewindow.window,
-								 0, 0, 1000, 1000);
-				decorateWindow(display, ev.xcreatewindow.window, root, ev.xcreatewindow.x, ev.xcreatewindow.y, ev.xcreatewindow.width, ev.xcreatewindow.height);
+				resizeWindow(display, screen, ev.xconfigure.window,
+							 483, 315);
+				repositionWindow(display, screen, ev.xconfigure.window,
+								 500, 500, 0, 0);
+				Window deco = decorateWindow(display, ev.xconfigure.window, root, ev.xconfigure.x, ev.xconfigure.y, ev.xconfigure.width, ev.xconfigure.height);
 				
+				addWindowToPool(deco, ev.xconfigure.window, pool);
+			} break;
+			case Expose: {
+				if (managedWindowForWindow(ev.xexpose.window, pool)) {
+					drawDecorations(display, ev.xexpose.window, "expose_draw");
+				}
 			} break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
@@ -106,6 +134,7 @@ int main (int argc, const char * argv[]) {
 	}
 	
 	XCloseDisplay(display);
-
+	freePool(pool);
+	
 	return 0;
 }
