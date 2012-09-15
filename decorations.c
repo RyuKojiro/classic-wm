@@ -24,9 +24,9 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	
 	attrib.override_redirect = 1;
 	
-	newParent = XCreateWindow(display, root, x, y, width + 3, height + 3 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
+	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
 	
-	XReparentWindow(display, window, newParent, 0, 19);
+	XReparentWindow(display, window, newParent, 0, TITLEBAR_THICKNESS - 1);
 	
 	XMapWindow(display, newParent);
 	
