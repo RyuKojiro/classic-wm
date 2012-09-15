@@ -127,7 +127,7 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	}
 	
 	// Draw Close Button
-	drawCloseButtonDown(display, window, gc, RECT_CLOSE_BTN);
+	drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
 	
 	XFlush(display);
 	XFreeGC(display, gc);
@@ -144,25 +144,21 @@ void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w
 }
 
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
-	// White out bg
-	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
-	
-	// Draw Border
-	XSetForeground(display, gc, black);
-	XDrawRectangle(display, window, gc, x, y, w, h);
+	drawCloseButton(display, window, gc, x, y, w, h);
 	
 	// Draw first diag
-	XDrawLine(display, window, gc, (w - 1) / 2, y, (w - 1) / 2, y + h);
+	XDrawLine(display, window, gc, x + 2, y + 2, x + w - 2, y + h - 2);
 
 	// Draw |
-	//XDrawLine(display, window, gc, <#int#>, <#int#>, <#int#>, <#int#>)
+	XDrawLine(display, window, gc, x + w / 2, y, x + w / 2, y + h);
 
 	// Draw -
-	
-	// Draw /
-		
-	// Remove Center
-	//	XSetForeground(display, gc, white);
+	XDrawLine(display, window, gc, x, y + h / 2, x + w, y + h / 2);
 
+	// Draw /
+	XDrawLine(display, window, gc, x + w - 2, y + 2, x + 2, y + h - 2);
+
+	// Remove Center
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, x + w / 2 - 1, y + h / 2 - 1, 3, 3);
 }
