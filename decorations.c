@@ -11,6 +11,13 @@
 #include <string.h>
 #include "decorations.h"
 
+int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
+	if ((px >= rx && px <= (rx + rw)) && (py >= ry && py <= (ry + rh))) {
+			return 1;
+	}
+	return 0;
+}
+
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height) {
 	Window newParent;
 	XSetWindowAttributes attrib;

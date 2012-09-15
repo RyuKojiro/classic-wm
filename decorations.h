@@ -24,5 +24,6 @@
 // Functions
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height);
 void drawDecorations(Display *display, Window window, const char *title);
+int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 
 #endif
