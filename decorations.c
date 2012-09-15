@@ -90,9 +90,21 @@ void drawDecorations(Display *display, Window window, const char *title) {
 					   twidth + 14,
 					   TITLEBAR_CONTROL_SIZE);
 	}
+	// Subwindow box
+	XFillRectangle(display, window, gc,
+				   1,
+				   TITLEBAR_THICKNESS,
+				   attr.width - 3,
+				   attr.height - (TITLEBAR_THICKNESS + 3));
 	
 	// Draw buttons and title
 	XSetForeground(display, gc, black);
+	// Subwindow box
+	XDrawRectangle(display, window, gc,
+				   0,
+				   TITLEBAR_THICKNESS - 1,
+				   attr.width - 2,
+				   attr.height - 20);
 	// Shadow
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
