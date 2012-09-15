@@ -90,12 +90,6 @@ void drawDecorations(Display *display, Window window, const char *title) {
 					   twidth + 14,
 					   TITLEBAR_CONTROL_SIZE);
 	}
-	// Maximize button
-	XFillRectangle(display, window, gc,
-				   attr.width - (TITLEBAR_CONTROL_SIZE + 11),
-				   4,
-				   TITLEBAR_CONTROL_SIZE + 2,
-				   TITLEBAR_CONTROL_SIZE);
 	// Subwindow box
 	XFillRectangle(display, window, gc,
 				   1,
@@ -105,13 +99,6 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	
 	// Draw buttons and title
 	XSetForeground(display, gc, black);
-	// Draw Maximize Button
-	XDrawRectangle(display, window, gc, RECT_MAX_BTN);
-	XDrawRectangle(display, window, gc,
-				   attr.width - 21,
-				   4,
-				   6,
-				   6);
 	// Subwindow box
 	XDrawRectangle(display, window, gc,
 				   0,
@@ -132,8 +119,24 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	// Draw Close Button
 	drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
 	
+	// Draw Maximize Button
+	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
+	
 	XFlush(display);
 	XFreeGC(display, gc);
+}
+
+void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+	// White out bg
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
+	
+	// Draw Border
+	XSetForeground(display, gc, black);
+	XDrawRectangle(display, window, gc, x, y, w, h);
+	
+	// Draw Inside
+	XDrawRectangle(display, window, gc, x, y, w / 2, h / 2);
 }
 
 void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	

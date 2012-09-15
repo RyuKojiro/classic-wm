@@ -32,5 +32,6 @@ int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 // Individual Decorations
 void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h);
+void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 
 #endif
