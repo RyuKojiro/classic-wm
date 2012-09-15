@@ -100,26 +100,21 @@ int main (int argc, const char * argv[]) {
 					x = ev.xbutton.x_root - attr.x;
 					y = ev.xbutton.y_root - attr.y;
 					downState = MouseDownStateUnknown;
+					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
 						downState = MouseDownStateMove;
 					}
 					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-						GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
-						XFlush(display);
-						XFreeGC(display, gc);
-						
 						downState = MouseDownStateClose;
 					}
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
-						GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
-						XFlush(display);
-						XFreeGC(display, gc);
-
 						downState = MouseDownStateMaximize;
 					}					
-					
+					XFlush(display);
+					XFreeGC(display, gc);
+
 					// Grab the pointer
 					XGrabPointer(display, ev.xbutton.subwindow, True,
 								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
@@ -175,22 +170,19 @@ int main (int argc, const char * argv[]) {
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 				
+				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
 					case MouseDownStateClose: {
-						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
-						XFlush(display);
-						XFreeGC(display, gc);
 					} break;
 					case MouseDownStateMaximize: {
-						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
-						XFlush(display);
-						XFreeGC(display, gc);
 					} break;
 					default:
 						break;
 				}
+				XFlush(display);
+				XFreeGC(display, gc);
 			} break;
 			case ConfigureNotify: {
 				if (ev.xconfigure.override_redirect) {
