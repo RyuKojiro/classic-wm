@@ -12,6 +12,13 @@
 #include "decorations.h"
 #include "pool.h"
 
+typedef enum {
+	MouseDownStateUnknown = 0,
+	MouseDownStateMove,
+	MouseDownStateClose,
+	MouseDownStateMaximize
+} MouseDownState;
+
 static void logError(const char *format, ... ) {
 	size_t len = strlen(format) + strlen(LOG_PREFIX);
 	char *buf = malloc(len);
@@ -37,7 +44,8 @@ int main (int argc, const char * argv[]) {
 	int screen;
 	XWindowAttributes attr;
     XButtonEvent start;
-
+	MouseDownState downState;
+	
 	ManagedWindowPool *pool = createPool();
 	
 	/* Set up */
@@ -84,26 +92,48 @@ int main (int argc, const char * argv[]) {
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
-					// Check for close button or maximize button
+					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					XRaiseWindow(display, mw->decorationWindow);
+
+					// Check what was downed
+					int x, y;
+					x = ev.xbutton.x_root - attr.x;
+					y = ev.xbutton.y_root - attr.y;
+					downState = MouseDownStateUnknown;
+					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
+						downState = MouseDownStateMove;
+					}
+					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
+						downState = MouseDownStateClose;
+					}
+					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
+						downState = MouseDownStateMaximize;
+					}					
+					
+					// Grab the pointer
 					XGrabPointer(display, ev.xbutton.subwindow, True,
 								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
 								 GrabModeAsync, None, None, CurrentTime);
-					XGetWindowAttributes(display, ev.xbutton.subwindow, &attr);
 					start = ev.xbutton;
 				}
 			} break;
 			case MotionNotify: {
 				int xdiff, ydiff;
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
-				xdiff = ev.xbutton.x_root - start.x_root;
-				ydiff = ev.xbutton.y_root - start.y_root;
-				XMoveResizeWindow(display, ev.xmotion.window,
-								  attr.x + (start.button==1 ? xdiff : 0),
-								  attr.y + (start.button==1 ? ydiff : 0),
-								  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
-								  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
-			} break;
+				switch (downState) {
+					case MouseDownStateMove: {
+						xdiff = ev.xbutton.x_root - start.x_root;
+						ydiff = ev.xbutton.y_root - start.y_root;
+						XMoveResizeWindow(display, ev.xmotion.window,
+										  attr.x + (start.button==1 ? xdiff : 0),
+										  attr.y + (start.button==1 ? ydiff : 0),
+										  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
+										  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
+					} break;
+					default:
+						break;
+				}
+				} break;
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 			} break;
