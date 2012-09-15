@@ -101,6 +101,11 @@ void drawDecorations(Display *display, Window window, const char *title) {
 				   TITLEBAR_CONTROL_SIZE - 1,
 				   TITLEBAR_CONTROL_SIZE - 1);
 	XDrawRectangle(display, window, gc, attribs.width - 21, 4, 6, 6);
+	// Subwindow box
+	XDrawRectangle(display, window, gc, 0, 18, attribs.width - 2, attribs.height - 20);
+	// Shadow
+	XDrawLine(display, window, gc, 1, attribs.height - 1, attribs.width, attribs.height - 1);
+	XDrawLine(display, window, gc, attribs.width - 1, attribs.height - 1, attribs.width - 1, 1);
 
 	// Draw title
 	if (titleWillFit) {
