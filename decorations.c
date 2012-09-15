@@ -30,7 +30,9 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	
 	XMapWindow(display, newParent);
 	
-	drawDecorations(display, newParent, "Test title");
+	char *title;
+	XFetchName(display, window, &title);
+	drawDecorations(display, newParent, title);
 	
 	return newParent;
 }
