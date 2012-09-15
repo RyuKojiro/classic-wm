@@ -104,6 +104,11 @@ int main (int argc, const char * argv[]) {
 						downState = MouseDownStateMove;
 					}
 					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
+						GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
+						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
+						XFlush(display);
+						XFreeGC(display, gc);
+						
 						downState = MouseDownStateClose;
 					}
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
@@ -130,12 +135,37 @@ int main (int argc, const char * argv[]) {
 										  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
 										  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
 					} break;
+					case MouseDownStateClose: {
+						int x, y;
+						x = ev.xbutton.x_root - attr.x;
+						y = ev.xbutton.y_root - attr.y;
+						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
+						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
+							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
+						}
+						else {
+							drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
+						}
+						XFlush(display);
+						XFreeGC(display, gc);
+					}
 					default:
 						break;
 				}
 				} break;
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
+				
+				switch (downState) {
+					case MouseDownStateClose: {
+						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
+						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
+						XFlush(display);
+						XFreeGC(display, gc);
+					} break;
+					default:
+						break;
+				}
 			} break;
 			case ConfigureNotify: {
 				if (ev.xconfigure.override_redirect) {
