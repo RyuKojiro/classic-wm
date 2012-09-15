@@ -84,6 +84,7 @@ int main (int argc, const char * argv[]) {
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+					// Check for close button or maximize button
 					XRaiseWindow(display, mw->decorationWindow);
 					XGrabPointer(display, ev.xbutton.subwindow, True,
 								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
@@ -106,21 +107,20 @@ int main (int argc, const char * argv[]) {
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 			} break;
-			case ConfigureNotify:
-			case CreateNotify: {
-				if (ev.xcreatewindow.override_redirect) {
+			case ConfigureNotify: {
+				if (ev.xconfigure.override_redirect) {
 					break;
 				}
-				if (!ev.xcreatewindow.window) {
+				if (!ev.xconfigure.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				resizeWindow(display, screen, ev.xcreatewindow.window,
+				resizeWindow(display, screen, ev.xconfigure.window,
 							 483, 315);
-				repositionWindow(display, screen, ev.xcreatewindow.window,
+				repositionWindow(display, screen, ev.xconfigure.window,
 								 500, 500, 0, 0);
-				Window deco = decorateWindow(display, ev.xcreatewindow.window, root, ev.xcreatewindow.x, ev.xcreatewindow.y, ev.xcreatewindow.width, ev.xcreatewindow.height);
+				Window deco = decorateWindow(display, ev.xconfigure.window, root, ev.xconfigure.x, ev.xconfigure.y, ev.xconfigure.width, ev.xconfigure.height);
 				
-				addWindowToPool(deco, ev.xcreatewindow.window, pool);
+				addWindowToPool(deco, ev.xconfigure.window, pool);
 			} break;
 			case Expose: {
 				if (managedWindowForWindow(ev.xexpose.window, pool)) {
