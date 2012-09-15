@@ -11,6 +11,9 @@
 #include <string.h>
 #include "decorations.h"
 
+static unsigned long white;
+static unsigned long black;
+
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	if ((px >= rx && px <= (rx + rw)) && (py >= ry && py <= (ry + rh))) {
 			return 1;
@@ -39,8 +42,8 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 
 void drawDecorations(Display *display, Window window, const char *title) {
 	XWindowAttributes attr;
-	unsigned long white = XWhitePixel(display, DefaultScreen(display));
-	unsigned long black = XBlackPixel(display, DefaultScreen(display));
+	white = XWhitePixel(display, DefaultScreen(display));
+	black = XBlackPixel(display, DefaultScreen(display));
 	int titleWillFit = 1;
 	
 	// Create GC
@@ -76,12 +79,6 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	
 	// White out areas for buttons and title
 	XSetForeground(display, gc, white);
-	// Close button
-	XFillRectangle(display, window, gc,
-				   8,
-				   4,
-				   TITLEBAR_CONTROL_SIZE + 2,
-				   TITLEBAR_CONTROL_SIZE);
 	// Title
 	if (titleWillFit) {
 		XFillRectangle(display, window, gc,
@@ -105,8 +102,6 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	
 	// Draw buttons and title
 	XSetForeground(display, gc, black);
-	// Draw close button
-	XDrawRectangle(display, window, gc, RECT_CLOSE_BTN);
 	// Draw Maximize Button
 	XDrawRectangle(display, window, gc, RECT_MAX_BTN);
 	XDrawRectangle(display, window, gc,
@@ -131,6 +126,43 @@ void drawDecorations(Display *display, Window window, const char *title) {
 		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_SIZE, title, (int)strlen(title));
 	}
 	
+	// Draw Close Button
+	drawCloseButtonDown(display, window, gc, RECT_CLOSE_BTN);
+	
 	XFlush(display);
 	XFreeGC(display, gc);
+}
+
+void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+	// White out bg
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
+	
+	// Draw Border
+	XSetForeground(display, gc, black);
+	XDrawRectangle(display, window, gc, x, y, w, h);
+}
+
+void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+	// White out bg
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, x - 1, y, w + 2, h);
+	
+	// Draw Border
+	XSetForeground(display, gc, black);
+	XDrawRectangle(display, window, gc, x, y, w, h);
+	
+	// Draw first diag
+	XDrawLine(display, window, gc, (w - 1) / 2, y, (w - 1) / 2, y + h);
+
+	// Draw |
+	//XDrawLine(display, window, gc, <#int#>, <#int#>, <#int#>, <#int#>)
+
+	// Draw -
+	
+	// Draw /
+		
+	// Remove Center
+	//	XSetForeground(display, gc, white);
+
 }
