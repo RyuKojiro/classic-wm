@@ -92,6 +92,9 @@ int main (int argc, const char * argv[]) {
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+					if (!mw) {
+						break;
+					}
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					XRaiseWindow(display, mw->decorationWindow);
 
@@ -192,22 +195,21 @@ int main (int argc, const char * argv[]) {
 				XFlush(display);
 				XFreeGC(display, gc);
 			} break;
+			case CreateNotify:
 			case ConfigureNotify: {
-				if (ev.xconfigure.override_redirect) {
+				if (managedWindowForWindow(ev.xconfigure.window, pool)) {
 					break;
 				}
 				if (!ev.xconfigure.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				resizeWindow(display, screen, ev.xconfigure.window,
-							 483, 315);
-				repositionWindow(display, screen, ev.xconfigure.window,
-								 500, 500, 0, 0);
 				Window deco = decorateWindow(display, ev.xconfigure.window, root, ev.xconfigure.x, ev.xconfigure.y, ev.xconfigure.width, ev.xconfigure.height);
 				
 				addWindowToPool(deco, ev.xconfigure.window, pool);
+				
+				XRaiseWindow(display, deco);
 			} break;
-			case Expose: {
+			case Expose: { // Useless?
 				if (managedWindowForWindow(ev.xexpose.window, pool)) {
 					drawDecorations(display, ev.xexpose.window, "expose_draw");
 				}
