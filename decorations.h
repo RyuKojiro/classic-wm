@@ -28,9 +28,11 @@
 // Functions
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height);
 void drawDecorations(Display *display, Window window, const char *title);
+void drawTitle(Display *display, Window window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 
 // Individual Decorations
+void whiteOutTitleBar(Display *display, Window window, GC gc, XWindowAttributes attr);
 void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h);

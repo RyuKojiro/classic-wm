@@ -49,34 +49,16 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XWindowAttributes attr;
 	white = XWhitePixel(display, DefaultScreen(display));
 	black = XBlackPixel(display, DefaultScreen(display));
-	int titleWillFit = !!title;
-	int twidth;
 	
 	// Create GC
 	GC gc = XCreateGC(display, window, 0, 0);	
 	
-	if (titleWillFit) {
-		// Set up text
-		const char *fontname = "-*-fixed-bold-r-*-14-*";
-		XFontStruct *font = XLoadQueryFont(display, fontname);
-		if (!font) {
-			fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
-			font = XLoadQueryFont(display, "fixed");
-		}
-		XSetFont(display, gc, font->fid);
-		twidth = XTextWidth(font, title, (int)strlen(title));
-	}
 		
 	// Get dimensions
 	XGetWindowAttributes(display, window, &attr);
 	
-	if (attr.width < (twidth + 42)) {
-		titleWillFit = 0;
-	}
-
 	// Draw bounding box
-	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, 1, 1, attr.width - 3, TITLEBAR_THICKNESS - 2);
+	whiteOutTitleBar(display, window, gc, attr);
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, RECT_TITLEBAR);
 	
@@ -87,14 +69,6 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	
 	// White out areas for buttons and title
 	XSetForeground(display, gc, white);
-	// Title
-	if (titleWillFit) {
-		XFillRectangle(display, window, gc,
-					   ((attr.width - twidth)/ 2) - 7,
-					   4,
-					   twidth + 14,
-					   TITLEBAR_CONTROL_SIZE);
-	}
 	// Subwindow box
 	XFillRectangle(display, window, gc,
 				   1,
@@ -114,21 +88,58 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
 
-	// Draw title
-	if (titleWillFit) {
-		XSetForeground(display, gc, black);
-		XSetBackground(display, gc, white);
-		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_SIZE, title, (int)strlen(title));
-	}
+	// Draw Title
+	drawTitle(display, window, gc, title, attr);
 	
 	// Draw Close Button
 	drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
 	
 	// Draw Maximize Button
 	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
-		
+
 	XFlush(display);
 	XFreeGC(display, gc);
+}
+
+void whiteOutTitleBar(Display *display, Window window, GC gc, XWindowAttributes attr){
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, 1, 1, attr.width - 3, TITLEBAR_THICKNESS - 2);
+}
+
+void drawTitle(Display *display, Window window, GC gc, const char *title, XWindowAttributes attr){
+	int titleWillFit = !!title;
+	int twidth;
+	
+	if (titleWillFit) {
+		// Set up text
+		const char *fontname = "-*-fixed-bold-r-*-14-*";
+		XFontStruct *font = XLoadQueryFont(display, fontname);
+		if (!font) {
+			fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
+			font = XLoadQueryFont(display, "fixed");
+		}
+		XSetFont(display, gc, font->fid);
+		twidth = XTextWidth(font, title, (int)strlen(title));
+	}
+
+	if (attr.width < (twidth + 42)) {
+		titleWillFit = 0;
+	}
+
+	XSetForeground(display, gc, white);
+	if (titleWillFit) {
+		// White out under Title
+		XFillRectangle(display, window, gc,
+					   ((attr.width - twidth)/ 2) - 7,
+					   4,
+					   twidth + 14,
+					   TITLEBAR_CONTROL_SIZE);
+	
+		// Draw title
+		XSetForeground(display, gc, black);
+		XSetBackground(display, gc, white);
+		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_SIZE, title, (int)strlen(title));
+	}
 }
 
 void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, int w, int h){
