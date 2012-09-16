@@ -39,6 +39,18 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 	return 0;
 }
 
+static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
+	XWindowAttributes attr;
+	char *title;
+	ManagedWindow *this = pool->head;
+	do {
+		XFetchName(display, this->actualWindow, &title);
+		XGetWindowAttributes(display, this->decorationWindow, &attr);
+		whiteOutTitleBar(display, this->decorationWindow, gc, attr);
+		drawTitle(display, this->decorationWindow, gc, title, attr);
+	} while ((this = this->next));
+}
+
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize;
@@ -128,15 +140,9 @@ int main (int argc, const char * argv[]) {
 					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 
 					// Raise and activate the window
-					XRaiseWindow(display, mw->decorationWindow);
 					char *title;
-					ManagedWindow *this = pool->head;
-					do {
-						XFetchName(display, this->actualWindow, &title);
-						XGetWindowAttributes(display, this->decorationWindow, &attr);
-						whiteOutTitleBar(display, this->decorationWindow, gc, attr);
-						drawTitle(display, this->decorationWindow, gc, title, attr);
-					} while ((this = this->next));
+					lowerAllWindowsInPool(display, pool, gc);
+					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					XFetchName(display, mw->actualWindow, &title);
 					drawDecorations(display, mw->decorationWindow, title);
