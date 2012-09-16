@@ -125,6 +125,7 @@ int main (int argc, const char * argv[]) {
 			case MotionNotify: {
 				int xdiff, ydiff;
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
+				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
 					case MouseDownStateMove: {
 						xdiff = ev.xbutton.x_root - start.x_root;
@@ -139,34 +140,30 @@ int main (int argc, const char * argv[]) {
 						int x, y;
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
-						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
 						}
 						else {
 							drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
 						}
-						XFlush(display);
-						XFreeGC(display, gc);
 					} break;
 					case MouseDownStateMaximize: {
 						int x, y;
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
-						GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);							
 						}
 						else {
 							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 						}
-						XFlush(display);
-						XFreeGC(display, gc);
 					} break;
 					default:
 						break;
 				}
-				} break;
+				XFlush(display);
+				XFreeGC(display, gc);
+			} break;
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 				
