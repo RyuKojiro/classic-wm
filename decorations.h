@@ -10,11 +10,12 @@
 #define _decorations_h
 
 // Hard dimensions
-#define TITLEBAR_CONTROL_SIZE	11		// px dimension for buttons
-#define TITLEBAR_TEXT_SIZE		15		// ptSize or pxSize
-#define TITLEBAR_TEXTURE_START	4		// px from top to start texture
-#define TITLEBAR_THICKNESS		19		// px tall
-#define TITLEBAR_TEXT_MARGIN	7		// px on either side
+#define TITLEBAR_THICKNESS		19							// px tall (This should scale everything else)
+#define TITLEBAR_TEXT_SIZE		15							// ptSize or pxSize
+#define TITLEBAR_TEXTURE_START	4							// px from top to start texture
+#define TITLEBAR_TEXTURE_SPACE	TITLEBAR_THICKNESS / 10 + 1	// px from top to start texture
+#define TITLEBAR_CONTROL_SIZE	TITLEBAR_THICKNESS - 8		// px dimension for buttons
+#define TITLEBAR_TEXT_MARGIN	7							// px on either side
 
 // Rects
 #define RECT_TITLEBAR			0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1

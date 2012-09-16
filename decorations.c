@@ -81,7 +81,7 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XDrawRectangle(display, window, gc, RECT_TITLEBAR);
 	
 	// Draw texture
-	for (int y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += 2) {
+	for (int y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
 		XDrawLine(display, window, gc, 2, y, attr.width - 4, y);
 	}
 	
@@ -126,7 +126,7 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	
 	// Draw Maximize Button
 	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
-	
+		
 	XFlush(display);
 	XFreeGC(display, gc);
 }
