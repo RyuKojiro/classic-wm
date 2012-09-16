@@ -38,6 +38,17 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 	return 0;
 }
 
+static void reparentWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
+	XMoveWindow(display, window, 500, 500);
+	XResizeWindow(display, window, 500, 500);
+	
+	Window deco = decorateWindow(display, window, root, 500, 500, 500, 500);
+	
+	addWindowToPool(deco, window, pool);
+	
+	XRaiseWindow(display, deco);
+}
+
 int main (int argc, const char * argv[]) {
     Display *display;
 	XEvent ev;
@@ -71,7 +82,7 @@ int main (int argc, const char * argv[]) {
 	unsigned int i;
 	for (i = 0; i < nchildren; i++) {
 		if (children[i] && children[i] != root) {
-			repositionWindow(display, screen, children[i], 0, 0, DisplayWidth(display, screen), DisplayHeight(display, screen));	
+			reparentWindow(display, ev.xconfigure.window, root, pool);
 		}
 		else {
 			logError("Could not find window with XID:%ld\n", children[i]);
@@ -203,11 +214,7 @@ int main (int argc, const char * argv[]) {
 				if (!ev.xconfigure.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				Window deco = decorateWindow(display, ev.xconfigure.window, root, ev.xconfigure.x, ev.xconfigure.y, ev.xconfigure.width, ev.xconfigure.height);
-				
-				addWindowToPool(deco, ev.xconfigure.window, pool);
-				
-				XRaiseWindow(display, deco);
+				reparentWindow(display, ev.xconfigure.window, root, pool);
 			} break;
 			case Expose: { // Useless?
 				if (managedWindowForWindow(ev.xexpose.window, pool)) {
