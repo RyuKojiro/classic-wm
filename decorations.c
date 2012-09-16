@@ -49,20 +49,23 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XWindowAttributes attr;
 	white = XWhitePixel(display, DefaultScreen(display));
 	black = XBlackPixel(display, DefaultScreen(display));
-	int titleWillFit = 1;
+	int titleWillFit = !!title;
+	int twidth;
 	
 	// Create GC
 	GC gc = XCreateGC(display, window, 0, 0);	
 	
-	// Set up text
-	const char *fontname = "-*-fixed-bold-r-*-14-*";
-	XFontStruct *font = XLoadQueryFont(display, fontname);
-	if (!font) {
-		fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
-		font = XLoadQueryFont(display, "fixed");
+	if (titleWillFit) {
+		// Set up text
+		const char *fontname = "-*-fixed-bold-r-*-14-*";
+		XFontStruct *font = XLoadQueryFont(display, fontname);
+		if (!font) {
+			fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
+			font = XLoadQueryFont(display, "fixed");
+		}
+		XSetFont(display, gc, font->fid);
+		twidth = XTextWidth(font, title, (int)strlen(title));
 	}
-	XSetFont(display, gc, font->fid);
-	int twidth = XTextWidth(font, title, (int)strlen(title));
 		
 	// Get dimensions
 	XGetWindowAttributes(display, window, &attr);
