@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> // getenv
 #include <X11/Xlib.h>
+#include <X11/Xutil.h> // XSizeHints
 #include <stdarg.h> // va_list
 #include <string.h> // logError
 
@@ -39,11 +40,20 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 }
 
 static void reparentWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
-	XMoveWindow(display, window, 500, 500);
-	XResizeWindow(display, window, 500, 500);
+	XSizeHints attr;
+	long supplied_return = PPosition | PSize;
 	
-	Window deco = decorateWindow(display, window, root, 500, 500, 500, 500);
+	XGetWMNormalHints(display, window, &attr, &supplied_return);
 	
+	XMoveWindow(display, window, attr.x, attr.y);
+	XResizeWindow(display, window, attr.width, attr.height);
+	
+//	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
+	
+	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height);
+	
+	XMoveWindow(display, deco, attr.x, attr.y);
+
 	addWindowToPool(deco, window, pool);
 	
 	XRaiseWindow(display, deco);
@@ -82,7 +92,7 @@ int main (int argc, const char * argv[]) {
 	unsigned int i;
 	for (i = 0; i < nchildren; i++) {
 		if (children[i] && children[i] != root) {
-			reparentWindow(display, ev.xconfigure.window, root, pool);
+			//reparentWindow(display, ev.xconfigure.window, root, pool);
 		}
 		else {
 			logError("Could not find window with XID:%ld\n", children[i]);
@@ -206,8 +216,7 @@ int main (int argc, const char * argv[]) {
 				XFlush(display);
 				XFreeGC(display, gc);
 			} break;
-			case CreateNotify:
-			case ConfigureNotify: {
+			case MapNotify: {
 				if (managedWindowForWindow(ev.xconfigure.window, pool)) {
 					break;
 				}
