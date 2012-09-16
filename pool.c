@@ -13,34 +13,80 @@
 
 ManagedWindowPool *createPool(void) {
 	ManagedWindowPool *pool = malloc(sizeof(ManagedWindowPool));
-	pool->windows = NULL;
-	pool->len = 0;
+	pool->head = NULL;
+	pool->active = NULL;
 	return pool;
 }
 
 void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool) {	
-	pool->windows = realloc(pool->windows, (sizeof(ManagedWindow)) * ++pool->len);
-	if (!pool->windows) {
-		perror("realloc");
+	ManagedWindow *mw = malloc(sizeof(ManagedWindow));
+	if (!mw) {
+		perror("malloc");
 		return;
 	}
 	
-	pool->windows[pool->len - 1].decorationWindow = decorationWindow;
-	pool->windows[pool->len - 1].actualWindow = actualWindow;
+	mw->actualWindow = actualWindow;
+	mw->decorationWindow = decorationWindow;
+	mw->next = pool->head;
+	
+	pool->head = mw;
 }
 
-void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool) {	
+void activateWindowInPool(Window window, ManagedWindowPool *pool) {
+	ManagedWindow *mw = managedWindowForWindow(window, pool);
+	pool->active = mw;
+}
+
+void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool) {
+	ManagedWindow *last = NULL;
+	ManagedWindow *this = pool->head;
+	if (this == managedWindow) {
+		pool->head = NULL;
+		free(this);
+		return;
+	}
+	while (this->next) {
+		last = this;
+		this = this->next;
+		if (this == managedWindow) {
+			last->next = this->next;
+			free(this);
+			return;
+		}
+	}
 }
 
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
-	for (int i = 0; i < pool->len; i++) {
-		if (window == pool->windows[i].decorationWindow || window == pool->windows[i].actualWindow) {
-			return &(pool->windows[i]);
+	ManagedWindow *this = pool->head;
+	do {
+		if (this->decorationWindow == window || this->actualWindow == window) {
+			return this;
 		}
-	}
+		this = this->next;
+	} while (this->next);
 	return NULL;
 }
 
-void freePool(ManagedWindowPool *pool) {
-	free(pool);
+void destroyPool(ManagedWindowPool *pool) {
+	ManagedWindow *last;
+	ManagedWindow *this = pool->head;
+	while (this->next) {
+		last = this;
+		this = this->next;
+		free(last);
+	}
+	free(this);
+}
+
+void printPool(ManagedWindowPool *pool) {
+	ManagedWindow *this = pool->head;
+	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
+	do {
+		fprintf(stderr, "\tManagedWindow %p {\n", this);
+		fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
+		fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
+		fprintf(stderr, "\t}\n");
+		this = this->next;
+	} while (this->next);
+	fprintf(stderr, "}\n");
 }
