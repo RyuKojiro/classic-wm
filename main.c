@@ -8,7 +8,6 @@
 #define LOG_PREFIX	"classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-#include "window.h"
 #include "eventnames.h"
 #include "decorations.h"
 #include "pool.h"
