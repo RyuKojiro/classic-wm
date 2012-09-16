@@ -171,6 +171,16 @@ int main (int argc, const char * argv[]) {
 				switch (downState) {
 					case MouseDownStateClose: {
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
+						
+						int x, y;
+						x = ev.xbutton.x_root - attr.x;
+						y = ev.xbutton.y_root - attr.y;
+						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
+							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
+							XUnmapWindow(display, mw->decorationWindow);
+							XDestroyWindow(display, mw->decorationWindow);
+							removeWindowFromPool(mw, pool);
+						}
 					} break;
 					case MouseDownStateMaximize: {
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
