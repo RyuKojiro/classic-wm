@@ -41,7 +41,7 @@ void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool)
 	ManagedWindow *last = NULL;
 	ManagedWindow *this = pool->head;
 	if (this == managedWindow) {
-		pool->head = NULL;
+		pool->head = this->next;
 		free(this);
 		return;
 	}
