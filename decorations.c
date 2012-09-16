@@ -15,6 +15,8 @@ static unsigned long white;
 static unsigned long black;
 
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
+	rw++;
+	rh++;
 	if ((px >= rx && px <= (rx + rw)) && (py >= ry && py <= (ry + rh))) {
 			return 1;
 	}
