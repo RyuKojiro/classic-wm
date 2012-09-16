@@ -39,7 +39,7 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 	return 0;
 }
 
-static void reparentWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
+static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize;
 	
@@ -57,6 +57,15 @@ static void reparentWindow(Display *display, Window window, Window root, Managed
 	addWindowToPool(deco, window, pool);
 	
 	XRaiseWindow(display, deco);
+}
+
+static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
+	ManagedWindow *mw = managedWindowForWindow(window, pool);
+	if (mw) {
+		XUnmapWindow(display, mw->decorationWindow);
+		XDestroyWindow(display, mw->decorationWindow);
+		removeWindowFromPool(mw, pool);
+	}
 }
 
 int main (int argc, const char * argv[]) {
@@ -201,10 +210,7 @@ int main (int argc, const char * argv[]) {
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
-							XUnmapWindow(display, mw->decorationWindow);
-							XDestroyWindow(display, mw->decorationWindow);
-							removeWindowFromPool(mw, pool);
+							unclaimWindow(display, ev.xmotion.window, pool);
 						}
 					} break;
 					case MouseDownStateMaximize: {
@@ -223,7 +229,10 @@ int main (int argc, const char * argv[]) {
 				if (!ev.xconfigure.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				reparentWindow(display, ev.xconfigure.window, root, pool);
+				claimWindow(display, ev.xconfigure.window, root, pool);
+			} break;
+			case DestroyNotify: {
+				unclaimWindow(display, ev.xdestroywindow.window, pool);
 			} break;
 			case Expose: { // Useless?
 				if (managedWindowForWindow(ev.xexpose.window, pool)) {
