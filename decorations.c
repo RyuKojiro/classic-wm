@@ -120,10 +120,10 @@ void drawTitle(Display *display, Window window, GC gc, const char *title, XWindo
 		}
 		XSetFont(display, gc, font->fid);
 		twidth = XTextWidth(font, title, (int)strlen(title));
-	}
 
-	if (attr.width < (twidth + 42)) {
-		titleWillFit = 0;
+		if (attr.width < (twidth + 42)) {
+			titleWillFit = 0;
+		}
 	}
 
 	XSetForeground(display, gc, white);
