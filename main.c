@@ -125,15 +125,31 @@ int main (int argc, const char * argv[]) {
 					if (!mw) {
 						break;
 					}
-					XGetWindowAttributes(display, mw->decorationWindow, &attr);
-					XRaiseWindow(display, mw->decorationWindow);
+					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 
+					// Raise and activate the window
+					XRaiseWindow(display, mw->decorationWindow);
+					char *title;
+					ManagedWindow *this = pool->head;
+					do {
+						XFetchName(display, this->actualWindow, &title);
+						XGetWindowAttributes(display, this->decorationWindow, &attr);
+						whiteOutTitleBar(display, this->decorationWindow, gc, attr);
+						drawTitle(display, this->decorationWindow, gc, title, attr);
+					} while ((this = this->next));
+					XGetWindowAttributes(display, mw->decorationWindow, &attr);
+					XFetchName(display, mw->actualWindow, &title);
+					drawDecorations(display, mw->decorationWindow, title);
+					// This might be unnecessary
+					//activateWindowInPool(mw, pool);
+					
+					// TODO: Pass the event into the subwindow
+					
 					// Check what was downed
 					int x, y;
 					x = ev.xbutton.x_root - attr.x;
 					y = ev.xbutton.y_root - attr.y;
 					downState = MouseDownStateUnknown;
-					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
 						downState = MouseDownStateMove;
 					}
