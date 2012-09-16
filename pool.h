@@ -27,7 +27,7 @@ struct ManagedWindowPool_t {
 typedef struct ManagedWindowPool_t ManagedWindowPool;
 
 ManagedWindowPool *createPool(void);
-void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool);
+ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool);
 void activateWindowInPool(Window window, ManagedWindowPool *pool);
 void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool);
 void destroyPool(ManagedWindowPool *pool);

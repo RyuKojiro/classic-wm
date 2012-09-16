@@ -18,11 +18,11 @@ ManagedWindowPool *createPool(void) {
 	return pool;
 }
 
-void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool) {	
+ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool) {	
 	ManagedWindow *mw = malloc(sizeof(ManagedWindow));
 	if (!mw) {
 		perror("malloc");
-		return;
+		return NULL;
 	}
 	
 	mw->actualWindow = actualWindow;
@@ -30,6 +30,8 @@ void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindow
 	mw->next = pool->head;
 	
 	pool->head = mw;
+	
+	return mw;
 }
 
 void activateWindowInPool(Window window, ManagedWindowPool *pool) {
