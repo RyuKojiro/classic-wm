@@ -11,7 +11,7 @@ LDFLAGS+=	-L/usr/X11R6/lib
 LDADD+=		-lX11
 
 PROG=   classic-wm
-SRCS=   main.c window.c decorations.c pool.c
+SRCS=   main.c decorations.c pool.c
 OBJS=   $(patsubst %.c, %.o, $(SRCS))
 
 .PHONY: clean
