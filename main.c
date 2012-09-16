@@ -43,6 +43,10 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	XWindowAttributes attr;
 	char *title;
 	ManagedWindow *this = pool->head;
+	if (!pool->head) {
+		// No windows to lower
+		return;
+	}
 	do {
 		XFetchName(display, this->actualWindow, &title);
 		XGetWindowAttributes(display, this->decorationWindow, &attr);
@@ -56,6 +60,11 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	long supplied_return = PPosition | PSize;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
+	
+	GC gc = XCreateGC(display, root, 0, 0);	
+	lowerAllWindowsInPool(display, pool, gc);
+	XFlush(display);
+	XFreeGC(display, gc);
 	
 	XMoveWindow(display, window, attr.x, attr.y);
 	XResizeWindow(display, window, attr.width, attr.height);
