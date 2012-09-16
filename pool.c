@@ -58,12 +58,12 @@ void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool)
 
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
 	ManagedWindow *this = pool->head;
-	do {
+	while (this) {
 		if (this->decorationWindow == window || this->actualWindow == window) {
 			return this;
 		}
 		this = this->next;
-	} while (this->next);
+	}
 	return NULL;
 }
 
