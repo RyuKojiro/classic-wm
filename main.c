@@ -4,7 +4,7 @@
 #include <stdarg.h> // va_list
 #include <string.h> // logError
 
-#define LOG_PREFIX	"kiosk-wm: "
+#define LOG_PREFIX	"classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #include "window.h"
@@ -111,6 +111,7 @@ int main (int argc, const char * argv[]) {
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
 						downState = MouseDownStateMaximize;
+						printPool(pool);
 					}					
 					XFlush(display);
 					XFreeGC(display, gc);
@@ -218,7 +219,7 @@ int main (int argc, const char * argv[]) {
 	}
 	
 	XCloseDisplay(display);
-	freePool(pool);
+	destroyPool(pool);
 	
 	return 0;
 }
