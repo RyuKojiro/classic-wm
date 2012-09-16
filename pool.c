@@ -29,7 +29,7 @@ void addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindow
 	pool->windows[pool->len - 1].actualWindow = actualWindow;
 }
 
-void removeWindowFromPool(ManagedWindowPool *managedWindow, ManagedWindowPool *pool) {	
+void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool) {	
 }
 
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
