@@ -264,11 +264,6 @@ int main (int argc, const char * argv[]) {
 			case DestroyNotify: {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
 			} break;
-			case Expose: { // Useless?
-				if (managedWindowForWindow(ev.xexpose.window, pool)) {
-					drawDecorations(display, ev.xexpose.window, "expose_draw");
-				}
-			} break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
