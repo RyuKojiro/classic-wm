@@ -13,14 +13,16 @@
 #define TITLEBAR_THICKNESS		19							// px tall (This should scale everything else)
 #define TITLEBAR_TEXT_SIZE		15							// ptSize or pxSize
 #define TITLEBAR_TEXTURE_START	4							// px from top to start texture
-#define TITLEBAR_TEXTURE_SPACE	TITLEBAR_THICKNESS / 10 + 1	// px from top to start texture
-#define TITLEBAR_CONTROL_SIZE	TITLEBAR_THICKNESS - 8		// px dimension for buttons
+#define TITLEBAR_TEXTURE_SPACE	TITLEBAR_THICKNESS / 10 + 1	// px space between each line
+#define TITLEBAR_CONTROL_SIZE	TITLEBAR_THICKNESS - 8		// px^2
 #define TITLEBAR_TEXT_MARGIN	7							// px on either side
+#define RESIZE_CONTROL_SIZE		15							// px^2
 
 // Rects
 #define RECT_TITLEBAR			0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1
 #define RECT_CLOSE_BTN			9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #define RECT_MAX_BTN			attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+#define RECT_RESIZE_BTN			0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 
 // Cursors
 #define XC_left_ptr 68
@@ -37,5 +39,6 @@ void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, i
 void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
+void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 
 #endif

@@ -24,24 +24,36 @@ int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 }
 
 Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height) {
-	Window newParent;
+	Window newParent, resizer;
 	XSetWindowAttributes attrib;
-	
+	char *title;
+
+	// Flag as override_redirect, so that we don't decorate decorations
 	attrib.override_redirect = 1;
 	
+	// Create New Parent
 	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
-	
 	XReparentWindow(display, window, newParent, 0, TITLEBAR_THICKNESS - 1);
 	
+	// Create Resize Button Window
+	resizer = XCreateWindow(display, newParent, width - RESIZE_CONTROL_SIZE + 1, height + TITLEBAR_THICKNESS - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
+	XReparentWindow(display, resizer, newParent, width - RESIZE_CONTROL_SIZE + 1, height + TITLEBAR_THICKNESS - RESIZE_CONTROL_SIZE);
+	XMapRaised(display, resizer);
+	
+	// Set Cursor
 	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
 	XDefineCursor(display, newParent, cur);
 	
+	// Draw Time
 	XMapWindow(display, newParent);
-	
-	char *title;
 	XFetchName(display, window, &title);
 	drawDecorations(display, newParent, title);
-	
+
+	GC gc = XCreateGC(display, window, 0, 0);	
+	drawResizeButton(display, resizer, gc, RECT_RESIZE_BTN);
+	XFlushGC(display, gc);
+	XFreeGC(display, gc);
+
 	return newParent;
 }
 
@@ -146,6 +158,22 @@ void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, i
 	// White out bg
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x - 1, y, w + 3, h + 1);
+}
+
+void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {
+	// Draw Border
+	XSetForeground(display, gc, black);
+	XDrawRectangle(display, window, gc, x, y, w, h);
+
+	// Bottom box
+	XDrawRectangle(display, window, gc, x + 5, y + 5, 8, 8);
+
+	// Top box
+	XDrawRectangle(display, window, gc, x + 3, y + 3, 6, 6);
+	
+	// White out overlap
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, x + 4, y + 4, 5, 5);
 }
 
 void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
