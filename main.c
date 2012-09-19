@@ -288,13 +288,13 @@ int main (int argc, const char * argv[]) {
 				XFreeGC(display, gc);
 			} break;
 			case MapNotify: {
-				if (managedWindowForWindow(ev.xconfigure.window, pool)) {
+				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
 					break;
 				}
-				if (!ev.xconfigure.window) {
+				if (!ev.xmap.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				claimWindow(display, ev.xconfigure.window, root, pool);
+				claimWindow(display, ev.xmap.window, root, pool);
 			} break;
 			case DestroyNotify: {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
