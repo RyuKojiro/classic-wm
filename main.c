@@ -212,6 +212,7 @@ int main (int argc, const char * argv[]) {
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
 						downState = MouseDownStateMaximize;
+						lastClick = 0;
 						printPool(pool);
 					}
 					XFlush(display);
