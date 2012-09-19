@@ -17,7 +17,8 @@ typedef enum {
 	MouseDownStateUnknown = 0,
 	MouseDownStateMove,
 	MouseDownStateClose,
-	MouseDownStateMaximize
+	MouseDownStateMaximize,
+	MouseDownStateResize
 } MouseDownState;
 
 static void logError(const char *format, ... ) {
@@ -156,6 +157,7 @@ int main (int argc, const char * argv[]) {
 	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */);
 
 	XGrabButton(display, 1, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+	XGrabButton(display, 3, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 
     for(;;)
     {
@@ -217,25 +219,24 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case MotionNotify: {
-				int xdiff, ydiff;
-				
+				int x, y;
 				// Invalidate double clicks
 				lastClick = 0;
 				
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
+					case MouseDownStateResize: {
+						x = ev.xbutton.x_root - start.x_root;
+						y = ev.xbutton.y_root - start.y_root;
+						XResizeWindow(display, ev.xmotion.window, attr.width + x, attr.height + y);
+					}
 					case MouseDownStateMove: {
-						xdiff = ev.xbutton.x_root - start.x_root;
-						ydiff = ev.xbutton.y_root - start.y_root;
-						XMoveResizeWindow(display, ev.xmotion.window,
-										  attr.x + (start.button==1 ? xdiff : 0),
-										  attr.y + (start.button==1 ? ydiff : 0),
-										  MAX(1, attr.width + (start.button==3 ? xdiff : 0)),
-										  MAX(1, attr.height + (start.button==3 ? ydiff : 0)));
+						x = ev.xbutton.x_root - start.x_root;
+						y = ev.xbutton.y_root - start.y_root;
+						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
 					} break;
 					case MouseDownStateClose: {
-						int x, y;
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
@@ -246,7 +247,6 @@ int main (int argc, const char * argv[]) {
 						}
 					} break;
 					case MouseDownStateMaximize: {
-						int x, y;
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
