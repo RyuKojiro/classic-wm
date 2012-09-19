@@ -14,6 +14,8 @@
 struct ManagedWindow_t {
 	Window decorationWindow;
 	Window actualWindow;
+	int last_w;
+	int last_h;
 	struct ManagedWindow_t *next;
 };
 
