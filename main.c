@@ -62,12 +62,14 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 	if (attr.height == (TITLEBAR_THICKNESS + 1)) {
 		// collapsed, uncollapse it
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
+		XMapWindow(display, mw->actualWindow);
 	}
 	else {
 		// normal, collapse it
 		mw->last_w = attr.width;
 		mw->last_h = attr.height;
 		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
+		XUnmapWindow(display, mw->actualWindow);
 	}
 	
 	XFetchName(display, mw->actualWindow, &title);
