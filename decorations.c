@@ -109,6 +109,9 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	// Draw Maximize Button
 	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
 
+	// Draw Collapse Button
+	//drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
+
 	XFlush(display);
 	XFreeGC(display, gc);
 }
@@ -193,6 +196,16 @@ void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w
 	// Draw Border
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
+}
+
+void drawCollapseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+	whiteOutUnderButton(display, window, gc, x, y, w, h);
+	
+	// Draw Border
+	XSetForeground(display, gc, black);
+	XDrawRectangle(display, window, gc, x, y, w, h);
+
+	XDrawRectangle(display, window, gc, x, y + w / 2 - 1, w, 2);
 }
 
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h) {	

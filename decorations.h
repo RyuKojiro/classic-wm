@@ -21,7 +21,9 @@
 // Rects
 #define RECT_TITLEBAR			0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1
 #define RECT_CLOSE_BTN			9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
-#define RECT_MAX_BTN			attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+//#define RECT_MAX_BTN			attr.width - (8 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+// Make this RECT_COLLAPSE_BTN for collapse positioning
+#define RECT_MAX_BTN		attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #define RECT_RESIZE_BTN			0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 
 // Cursors
@@ -40,5 +42,6 @@ void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w
 void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
+void drawCollapseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
 
 #endif
