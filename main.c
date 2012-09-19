@@ -4,6 +4,7 @@
 #include <X11/Xutil.h> // XSizeHints
 #include <stdarg.h> // va_list
 #include <string.h> // logError
+#include <time.h> // time()
 
 #define LOG_PREFIX	"classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -42,7 +43,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	XWindowAttributes attr;
 	char *title;
 	ManagedWindow *this = pool->head;
-	if (!pool->head) {
+	if (!this) {
 		// No windows to lower
 		return;
 	}
@@ -52,6 +53,25 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 		whiteOutTitleBar(display, this->decorationWindow, gc, attr);
 		drawTitle(display, this->decorationWindow, gc, title, attr);
 	} while ((this = this->next));
+}
+
+static void collapseWindow(Display *display, ManagedWindow *mw) {
+	XWindowAttributes attr;
+	char *title;
+	XGetWindowAttributes(display, mw->decorationWindow, &attr);
+	if (attr.height == (TITLEBAR_THICKNESS + 1)) {
+		// collapsed, uncollapse it
+		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
+	}
+	else {
+		// normal, collapse it
+		mw->last_w = attr.width;
+		mw->last_h = attr.height;
+		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
+	}
+	
+	XFetchName(display, mw->actualWindow, &title);
+	drawDecorations(display, mw->decorationWindow, title);
 }
 
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
@@ -95,6 +115,7 @@ int main (int argc, const char * argv[]) {
 	XWindowAttributes attr;
     XButtonEvent start;
 	MouseDownState downState;
+	time_t lastClick = 0;
 	
 	ManagedWindowPool *pool = createPool();
 	
@@ -158,7 +179,7 @@ int main (int argc, const char * argv[]) {
 					//activateWindowInPool(mw, pool);
 					
 					// TODO: Pass the event into the subwindow
-					
+
 					// Check what was downed
 					int x, y;
 					x = ev.xbutton.x_root - attr.x;
@@ -166,28 +187,39 @@ int main (int argc, const char * argv[]) {
 					downState = MouseDownStateUnknown;
 					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
 						downState = MouseDownStateMove;
+						// Grab the pointer
+						XGrabPointer(display, ev.xbutton.subwindow, True,
+									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+									 GrabModeAsync, None, None, CurrentTime);
+						start = ev.xbutton;
+						
+						if (lastClick >= (time(NULL) - 1)) {
+							collapseWindow(display, mw);
+							lastClick = 0;
+						}
+						else {
+							time(&lastClick);
+						}
 					}
 					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
+					 	drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
 						downState = MouseDownStateClose;
 					}
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
 						downState = MouseDownStateMaximize;
 						printPool(pool);
-					}					
+					}
 					XFlush(display);
 					XFreeGC(display, gc);
-
-					// Grab the pointer
-					XGrabPointer(display, ev.xbutton.subwindow, True,
-								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
-								 GrabModeAsync, None, None, CurrentTime);
-					start = ev.xbutton;
 				}
 			} break;
 			case MotionNotify: {
 				int xdiff, ydiff;
+				
+				// Invalidate double clicks
+				lastClick = 0;
+				
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
