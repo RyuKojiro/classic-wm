@@ -94,7 +94,7 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 //	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	
 	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height);
-	
+	XUngrabButton(display, 1, AnyModifier, window);
 	XMoveWindow(display, deco, attr.x, attr.y);
 
 	addWindowToPool(deco, window, pool);
@@ -154,10 +154,7 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */);
-
-	XGrabButton(display, 1, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
-	XGrabButton(display, 3, AnyModifier, root, True, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
+	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */ | ButtonPressMask);
 
     for(;;)
     {
