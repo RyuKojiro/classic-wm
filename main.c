@@ -145,7 +145,8 @@ int main (int argc, const char * argv[]) {
 	Window parent;
 	Window *children;
 	unsigned int nchildren;
-		
+	char *title;
+
 	XQueryTree(display, root, &root, &parent, &children, &nchildren);
 	
 	/* Initial Traverse on Startup */
@@ -177,7 +178,6 @@ int main (int argc, const char * argv[]) {
 					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 
 					// Raise and activate the window
-					char *title;
 					lowerAllWindowsInPool(display, pool, gc);
 					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
@@ -237,13 +237,19 @@ int main (int argc, const char * argv[]) {
 				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
 					case MouseDownStateResize: {
-						x = ev.xbutton.x_root - start.x_root;
-						y = ev.xbutton.y_root - start.y_root;
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
 						XGetWindowAttributes(display, mw->decorationWindow, &attr);
+
+						// Resize
+						x = ev.xbutton.x_root - start.x_root;
+						y = ev.xbutton.y_root - start.y_root;
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
 						start.x_root = ev.xbutton.x_root;
-						start.y_root = ev.xbutton.y_root;						
+						start.y_root = ev.xbutton.y_root;
+						
+						// Redraw Titlebar
+						XFetchName(display, mw->actualWindow, &title);
+						drawDecorations(display, mw->decorationWindow, title);
 					} break;
 					case MouseDownStateMove: {
 						x = ev.xbutton.x_root - start.x_root;
@@ -313,7 +319,7 @@ int main (int argc, const char * argv[]) {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
 			} break;
 			default: {
-				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
+				//logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
 	}
