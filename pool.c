@@ -18,13 +18,14 @@ ManagedWindowPool *createPool(void) {
 	return pool;
 }
 
-ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool) {	
+ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool) {	
 	ManagedWindow *mw = malloc(sizeof(ManagedWindow));
 	if (!mw) {
 		perror("malloc");
 		return NULL;
 	}
 	
+	mw->resizer = resizer;
 	mw->actualWindow = actualWindow;
 	mw->decorationWindow = decorationWindow;
 	mw->next = pool->head;

@@ -14,6 +14,7 @@
 struct ManagedWindow_t {
 	Window decorationWindow;
 	Window actualWindow;
+	Window resizer;
 	int last_w;
 	int last_h;
 	struct ManagedWindow_t *next;
@@ -29,7 +30,7 @@ struct ManagedWindowPool_t {
 typedef struct ManagedWindowPool_t ManagedWindowPool;
 
 ManagedWindowPool *createPool(void);
-ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, ManagedWindowPool *pool);
+ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool);
 void activateWindowInPool(Window window, ManagedWindowPool *pool);
 void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool);
 void destroyPool(ManagedWindowPool *pool);
