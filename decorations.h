@@ -23,14 +23,14 @@
 #define RECT_CLOSE_BTN			9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 //#define RECT_MAX_BTN			attr.width - (8 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 // Make this RECT_COLLAPSE_BTN for collapse positioning
-#define RECT_MAX_BTN		attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
-#define RECT_RESIZE_BTN			0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
+#define RECT_MAX_BTN			attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+#define RECT_RESIZE_BTN			attr.width - RESIZE_CONTROL_SIZE + 1, attr.height - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 
 // Cursors
 #define XC_left_ptr 68
 
 // Functions
-Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height);
+Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height, Window *resizer);
 void drawDecorations(Display *display, Window window, const char *title);
 void drawTitle(Display *display, Window window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);

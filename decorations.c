@@ -23,11 +23,15 @@ int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	return 0;
 }
 
-Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height) {
-	Window newParent, resizer;
+Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height, Window *resizer) {
+	Window newParent;
 	XSetWindowAttributes attrib;
+	XWindowAttributes attr;
 	char *title;
 
+	attr.width = width;
+	attr.height = height + TITLEBAR_THICKNESS;
+	
 	// Flag as override_redirect, so that we don't decorate decorations
 	attrib.override_redirect = 1;
 	
@@ -36,9 +40,8 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	XReparentWindow(display, window, newParent, 0, TITLEBAR_THICKNESS - 1);
 	
 	// Create Resize Button Window
-	resizer = XCreateWindow(display, newParent, width - RESIZE_CONTROL_SIZE + 1, height + TITLEBAR_THICKNESS - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
-	XReparentWindow(display, resizer, newParent, width - RESIZE_CONTROL_SIZE + 1, height + TITLEBAR_THICKNESS - RESIZE_CONTROL_SIZE);
-	XMapRaised(display, resizer);
+	*resizer = XCreateWindow(display, newParent, RECT_RESIZE_BTN, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
+	XMapRaised(display, *resizer);
 	
 	// Set Cursor
 	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
@@ -50,7 +53,7 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	drawDecorations(display, newParent, title);
 
 	GC gc = XCreateGC(display, window, 0, 0);	
-	drawResizeButton(display, resizer, gc, RECT_RESIZE_BTN);
+	drawResizeButton(display, *resizer, gc, 0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE);
 	XFlushGC(display, gc);
 	XFreeGC(display, gc);
 
@@ -127,7 +130,7 @@ void drawTitle(Display *display, Window window, GC gc, const char *title, XWindo
 	
 	if (titleWillFit) {
 		// Set up text
-		const char *fontname = "-*-fixed-bold-r-*-14-*";
+		const char *fontname = "-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0";
 		XFontStruct *font = XLoadQueryFont(display, fontname);
 		if (!font) {
 			fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
