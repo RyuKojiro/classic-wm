@@ -40,6 +40,12 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 	return 0;
 }
 
+static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
+	XResizeWindow(display, mw->decorationWindow, w, h);
+	XResizeWindow(display, mw->actualWindow, w, h - TITLEBAR_THICKNESS);
+	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE, h - RESIZE_CONTROL_SIZE);	
+}
+
 static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
 	XWindowAttributes attr;
 	char *title;
@@ -80,6 +86,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize;
+	Window resizer;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
 	
@@ -93,11 +100,11 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	
 //	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	
-	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height);
+	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
 	XMoveWindow(display, deco, attr.x, attr.y);
 
-	addWindowToPool(deco, window, pool);
+	addWindowToPool(deco, window, resizer, pool);
 	
 	XRaiseWindow(display, deco);
 }
@@ -176,10 +183,6 @@ int main (int argc, const char * argv[]) {
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					XFetchName(display, mw->actualWindow, &title);
 					drawDecorations(display, mw->decorationWindow, title);
-					// This might be unnecessary
-					//activateWindowInPool(mw, pool);
-					
-					// TODO: Pass the event into the subwindow
 
 					// Check what was downed
 					int x, y;
@@ -212,6 +215,15 @@ int main (int argc, const char * argv[]) {
 						lastClick = 0;
 						printPool(pool);
 					}
+					if (ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN)) {
+						// Grab the pointer
+						XGrabPointer(display, ev.xbutton.subwindow, True,
+									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+									 GrabModeAsync, None, None, CurrentTime);
+						start = ev.xbutton;
+						lastClick = 0;
+						downState = MouseDownStateResize;
+					}
 					XFlush(display);
 					XFreeGC(display, gc);
 				}
@@ -227,8 +239,12 @@ int main (int argc, const char * argv[]) {
 					case MouseDownStateResize: {
 						x = ev.xbutton.x_root - start.x_root;
 						y = ev.xbutton.y_root - start.y_root;
-						XResizeWindow(display, ev.xmotion.window, attr.width + x, attr.height + y);
-					}
+						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
+						XGetWindowAttributes(display, mw->decorationWindow, &attr);
+						resizeWindow(display, mw, attr.width + x, attr.height + y);
+						start.x_root = ev.xbutton.x_root;
+						start.y_root = ev.xbutton.y_root;						
+					} break;
 					case MouseDownStateMove: {
 						x = ev.xbutton.x_root - start.x_root;
 						y = ev.xbutton.y_root - start.y_root;
