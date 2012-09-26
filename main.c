@@ -43,7 +43,7 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	XResizeWindow(display, mw->decorationWindow, w, h);
 	XResizeWindow(display, mw->actualWindow, w, h - TITLEBAR_THICKNESS);
-	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE, h - RESIZE_CONTROL_SIZE);	
+	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE, h - RESIZE_CONTROL_SIZE);
 }
 
 static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
@@ -252,6 +252,12 @@ int main (int argc, const char * argv[]) {
 						// Redraw Titlebar
 						XFetchName(display, mw->actualWindow, &title);
 						drawDecorations(display, mw->decorationWindow, title);
+
+						// Redraw Resizer
+						GC gc = XCreateGC(display, root, 0, 0);
+						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+						XFlush(display);
+						XFreeGC(gc);
 					} break;
 					case MouseDownStateMove: {
 						x = ev.xbutton.x_root - start.x_root;
