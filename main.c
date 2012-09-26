@@ -42,8 +42,8 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	XResizeWindow(display, mw->decorationWindow, w, h);
-	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 1);
-	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE, h - RESIZE_CONTROL_SIZE);
+	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 2);
+	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE - 2, h - RESIZE_CONTROL_SIZE - 2);
 }
 
 static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
