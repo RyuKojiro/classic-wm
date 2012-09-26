@@ -198,7 +198,7 @@ int main (int argc, const char * argv[]) {
 									 GrabModeAsync, None, None, CurrentTime);
 						start = ev.xbutton;
 						
-						if (lastClickTime >= (time(NULL) - 1) && lastWindow == mw->decorationWindow) {
+						if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
 							collapseWindow(display, mw);
 							lastClickTime = 0;
 						}
@@ -257,7 +257,7 @@ int main (int argc, const char * argv[]) {
 						GC gc = XCreateGC(display, root, 0, 0);
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 						XFlush(display);
-						XFreeGC(gc);
+						XFreeGC(display, gc);
 					} break;
 					case MouseDownStateMove: {
 						x = ev.xbutton.x_root - start.x_root;
