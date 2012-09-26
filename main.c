@@ -125,8 +125,9 @@ int main (int argc, const char * argv[]) {
 	XWindowAttributes attr;
     XButtonEvent start;
 	MouseDownState downState;
-	time_t lastClick = 0;
-	
+	time_t lastClickTime = 0;
+	Window lastClickWindow = 0;
+
 	ManagedWindowPool *pool = createPool();
 	
 	/* Set up */
@@ -197,12 +198,13 @@ int main (int argc, const char * argv[]) {
 									 GrabModeAsync, None, None, CurrentTime);
 						start = ev.xbutton;
 						
-						if (lastClick >= (time(NULL) - 1)) {
+						if (lastClickTime >= (time(NULL) - 1) && lastWindow == mw->decorationWindow) {
 							collapseWindow(display, mw);
-							lastClick = 0;
+							lastClickTime = 0;
 						}
 						else {
-							time(&lastClick);
+							lastClickWindow = mw->decorationWindow;
+							time(&lastClickTime);
 						}
 					}
 					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
@@ -212,7 +214,7 @@ int main (int argc, const char * argv[]) {
 					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
 						downState = MouseDownStateMaximize;
-						lastClick = 0;
+						lastClickTime = 0;
 						printPool(pool);
 					}
 					if (ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN)) {
@@ -221,7 +223,7 @@ int main (int argc, const char * argv[]) {
 									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
 									 GrabModeAsync, None, None, CurrentTime);
 						start = ev.xbutton;
-						lastClick = 0;
+						lastClickTime = 0;
 						downState = MouseDownStateResize;
 					}
 					XFlush(display);
@@ -231,7 +233,7 @@ int main (int argc, const char * argv[]) {
 			case MotionNotify: {
 				int x, y;
 				// Invalidate double clicks
-				lastClick = 0;
+				lastClickTime = 0;
 				
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
