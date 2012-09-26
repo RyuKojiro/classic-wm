@@ -7,7 +7,8 @@ CFLAGS+=	-Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs
 CFLAGS+=	-Wpointer-arith -Wredundant-decls -Wsign-compare -Wstrict-prototypes
 CFLAGS+=	-Wundef -Wwrite-strings -Werror
 
-LDFLAGS+=	-L/usr/X11R6/lib
+CFLAGS+=	-I/opt/X11/include
+LDFLAGS+=	-L/opt/X11/lib
 LDADD+=		-lX11
 
 PROG=   classic-wm
