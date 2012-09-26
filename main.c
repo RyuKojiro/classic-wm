@@ -70,6 +70,13 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 		// collapsed, uncollapse it
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
 		XMapWindow(display, mw->actualWindow);
+
+		// Redraw Resizer
+                GC gc = XCreateGC(display, mw->resizer, 0, 0);
+                drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+                XFlush(display);
+                XFreeGC(display, gc);
+		XRaiseWindow(display, mw->resizer);
 	}
 	else {
 		// normal, collapse it
