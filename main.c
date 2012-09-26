@@ -42,7 +42,7 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	XResizeWindow(display, mw->decorationWindow, w, h);
-	XResizeWindow(display, mw->actualWindow, w, h - TITLEBAR_THICKNESS);
+	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 1);
 	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE, h - RESIZE_CONTROL_SIZE);
 }
 
@@ -95,14 +95,14 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	XFlush(display);
 	XFreeGC(display, gc);
 	
-	XMoveWindow(display, window, attr.x, attr.y);
-	XResizeWindow(display, window, attr.width, attr.height);
+	//XMoveWindow(display, window, attr.x, attr.y);
+	//XResizeWindow(display, window, attr.width, attr.height);
 	
 //	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	
 	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
-	XMoveWindow(display, deco, attr.x, attr.y);
+	XMoveWindow(display, deco, 1500, 1000);
 
 	addWindowToPool(deco, window, resizer, pool);
 	
