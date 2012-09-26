@@ -53,7 +53,7 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	drawDecorations(display, newParent, title);
 
 	GC gc = XCreateGC(display, window, 0, 0);	
-	drawResizeButton(display, *resizer, gc, 0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE);
+	drawResizeButton(display, *resizer, gc, RECT_RESIZE_DRAW);
 	XFlushGC(display, gc);
 	XFreeGC(display, gc);
 
@@ -167,6 +167,8 @@ void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, i
 }
 
 void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {
+	whiteOutUnderButton(display, window, gc, x, y, w, h);
+
 	// Draw Border
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
