@@ -11,7 +11,7 @@
 
 // Hard dimensions
 #define TITLEBAR_THICKNESS		19							// px tall (This should scale everything else)
-#define TITLEBAR_TEXT_SIZE		15							// ptSize or pxSize
+#define TITLEBAR_TEXT_OFFSET	14							// ptSize or pxSize
 #define TITLEBAR_TEXTURE_START	4							// px from top to start texture
 #define TITLEBAR_TEXTURE_SPACE	TITLEBAR_THICKNESS / 10 + 1	// px space between each line
 #define TITLEBAR_CONTROL_SIZE	TITLEBAR_THICKNESS - 8		// px^2

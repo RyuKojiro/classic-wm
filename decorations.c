@@ -156,7 +156,7 @@ void drawTitle(Display *display, Window window, GC gc, const char *title, XWindo
 		// Draw title
 		XSetForeground(display, gc, black);
 		XSetBackground(display, gc, white);
-		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_SIZE, title, (int)strlen(title));
+		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_OFFSET, title, (int)strlen(title));
 	}
 }
 
