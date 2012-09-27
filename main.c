@@ -41,6 +41,19 @@ static int dealWithIt(Display *display, XErrorEvent *ev) {
 }
 
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
+	// Set some absolute minimums
+	w = MAX(w, ((TITLEBAR_CONTROL_SIZE) * 5));
+	h = MAX(h, ((TITLEBAR_THICKNESS) * 2) + RESIZE_CONTROL_SIZE);
+	
+	// Respect the window minimums, if they exist
+	XSizeHints hints;
+	long supplied_return;
+	XGetWMNormalHints(display, mw->actualWindow, &hints, &supplied_return);
+	if ((supplied_return & PMinSize) == PMinSize) {
+		w = MAX(w, hints.min_width);
+		h = MAX(h, hints.min_height);
+	}
+	
 	XResizeWindow(display, mw->decorationWindow, w, h);
 	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 2);
 	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE - 2, h - RESIZE_CONTROL_SIZE - 2);
