@@ -103,6 +103,13 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 	drawDecorations(display, mw->decorationWindow, title);
 }
 
+static void maximizeWindow(Display *display, ManagedWindow *mw) {
+	XSizeHints attr;
+	long supplied_return = PMaxSize | PMinSize;
+	XGetWMNormalHints(display, mw->actualWindow, &attr, &supplied_return);
+	
+}
+
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize;
@@ -262,22 +269,22 @@ int main (int argc, const char * argv[]) {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
 						XGetWindowAttributes(display, mw->decorationWindow, &attr);
 
+						// Redraw Titlebar
+						XFetchName(display, mw->actualWindow, &title);
+						drawDecorations(display, mw->decorationWindow, title);
+						
+						// Redraw Resizer
+						GC gc = XCreateGC(display, root, 0, 0);
+						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+						XFlush(display);
+						XFreeGC(display, gc);
+						
 						// Resize
 						x = ev.xbutton.x_root - start.x_root;
 						y = ev.xbutton.y_root - start.y_root;
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
 						start.x_root = ev.xbutton.x_root;
 						start.y_root = ev.xbutton.y_root;
-						
-						// Redraw Titlebar
-						XFetchName(display, mw->actualWindow, &title);
-						drawDecorations(display, mw->decorationWindow, title);
-
-						// Redraw Resizer
-						GC gc = XCreateGC(display, root, 0, 0);
-						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
-						XFlush(display);
-						XFreeGC(display, gc);
 					} break;
 					case MouseDownStateMove: {
 						x = ev.xbutton.x_root - start.x_root;
@@ -346,8 +353,11 @@ int main (int argc, const char * argv[]) {
 			case DestroyNotify: {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
 			} break;
+			case PropertyNotify: {
+				
+			} break;
 			default: {
-				//logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
+				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
 	}
