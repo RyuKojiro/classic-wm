@@ -8,6 +8,7 @@
 
 #define LOG_PREFIX	"classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define NEW_WINDOW_OFFSET		22
 
 #include "eventnames.h"
 #include "decorations.h"
@@ -129,7 +130,7 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	
 	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
-	XMoveWindow(display, deco, 1500, 1000);
+	XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
 	addWindowToPool(deco, window, resizer, pool);
 	
