@@ -155,6 +155,7 @@ int main (int argc, const char * argv[]) {
 	MouseDownState downState;
 	time_t lastClickTime = 0;
 	Window lastClickWindow = 0;
+	int x, y;
 
 	ManagedWindowPool *pool = createPool();
 	
@@ -214,7 +215,6 @@ int main (int argc, const char * argv[]) {
 					drawDecorations(display, mw->decorationWindow, title);
 
 					// Check what was downed
-					int x, y;
 					x = ev.xbutton.x_root - attr.x;
 					y = ev.xbutton.y_root - attr.y;
 					downState = MouseDownStateUnknown;
@@ -326,7 +326,6 @@ int main (int argc, const char * argv[]) {
 					case MouseDownStateClose: {
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
 						
-						int x, y;
 						x = ev.xbutton.x_root - attr.x;
 						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
