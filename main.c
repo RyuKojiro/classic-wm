@@ -199,6 +199,7 @@ int main (int argc, const char * argv[]) {
         XNextEvent(display, &ev);
 				
 		switch (ev.type) {
+	#pragma mark ButtonPress
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
@@ -258,6 +259,7 @@ int main (int argc, const char * argv[]) {
 					XFreeGC(display, gc);
 				}
 			} break;
+	#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
 				// Invalidate double clicks
@@ -265,6 +267,9 @@ int main (int argc, const char * argv[]) {
 				
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
+				
+				x = ev.xbutton.x_root - start.x_root;
+				y = ev.xbutton.y_root - start.y_root;
 				switch (downState) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
@@ -281,20 +286,14 @@ int main (int argc, const char * argv[]) {
 						XFreeGC(display, gc);
 						
 						// Resize
-						x = ev.xbutton.x_root - start.x_root;
-						y = ev.xbutton.y_root - start.y_root;
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
 						start.x_root = ev.xbutton.x_root;
 						start.y_root = ev.xbutton.y_root;
 					} break;
 					case MouseDownStateMove: {
-						x = ev.xbutton.x_root - start.x_root;
-						y = ev.xbutton.y_root - start.y_root;
 						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
 					} break;
 					case MouseDownStateClose: {
-						x = ev.xbutton.x_root - attr.x;
-						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
 						}
@@ -303,8 +302,6 @@ int main (int argc, const char * argv[]) {
 						}
 					} break;
 					case MouseDownStateMaximize: {
-						x = ev.xbutton.x_root - attr.x;
-						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);							
 						}
@@ -318,6 +315,7 @@ int main (int argc, const char * argv[]) {
 				XFlush(display);
 				XFreeGC(display, gc);
 			} break;
+	#pragma mark ButtonRelease
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 				
@@ -341,6 +339,7 @@ int main (int argc, const char * argv[]) {
 				XFlush(display);
 				XFreeGC(display, gc);
 			} break;
+	#pragma mark MapNotify
 			case MapNotify: {
 				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
 					break;
@@ -350,9 +349,11 @@ int main (int argc, const char * argv[]) {
 				}
 				claimWindow(display, ev.xmap.window, root, pool);
 			} break;
+	#pragma mark DestroyNotify
 			case DestroyNotify: {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
 			} break;
+	#pragma mark PropertyNotify
 			case PropertyNotify: {
 				
 			} break;
