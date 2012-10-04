@@ -86,10 +86,10 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 		XMapWindow(display, mw->actualWindow);
 
 		// Redraw Resizer
-                GC gc = XCreateGC(display, mw->resizer, 0, 0);
-                drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
-                XFlush(display);
-                XFreeGC(display, gc);
+		GC gc = XCreateGC(display, mw->resizer, 0, 0);
+		drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+		XFlush(display);
+		XFreeGC(display, gc);
 		XRaiseWindow(display, mw->resizer);
 	}
 	else {
@@ -197,7 +197,8 @@ int main (int argc, const char * argv[]) {
     for(;;)
     {
         XNextEvent(display, &ev);
-				
+		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
+		
 		switch (ev.type) {
 	#pragma mark ButtonPress
 			case ButtonPress: {
@@ -206,7 +207,6 @@ int main (int argc, const char * argv[]) {
 					if (!mw) {
 						break;
 					}
-					GC gc = XCreateGC(display, mw->decorationWindow, 0, 0);	
 
 					// Raise and activate the window
 					lowerAllWindowsInPool(display, pool, gc);
@@ -255,8 +255,6 @@ int main (int argc, const char * argv[]) {
 						lastClickTime = 0;
 						downState = MouseDownStateResize;
 					}
-					XFlush(display);
-					XFreeGC(display, gc);
 				}
 			} break;
 	#pragma mark MotionNotify
@@ -266,7 +264,6 @@ int main (int argc, const char * argv[]) {
 				lastClickTime = 0;
 				
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
-				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				
 				x = ev.xbutton.x_root - start.x_root;
 				y = ev.xbutton.y_root - start.y_root;
@@ -280,7 +277,6 @@ int main (int argc, const char * argv[]) {
 						drawDecorations(display, mw->decorationWindow, title);
 						
 						// Redraw Resizer
-						GC gc = XCreateGC(display, root, 0, 0);
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 						XFlush(display);
 						XFreeGC(display, gc);
@@ -312,14 +308,11 @@ int main (int argc, const char * argv[]) {
 					default:
 						break;
 				}
-				XFlush(display);
-				XFreeGC(display, gc);
 			} break;
 	#pragma mark ButtonRelease
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 				
-				GC gc = XCreateGC(display, ev.xmotion.window, 0, 0);	
 				switch (downState) {
 					case MouseDownStateClose: {
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
@@ -336,8 +329,6 @@ int main (int argc, const char * argv[]) {
 					default:
 						break;
 				}
-				XFlush(display);
-				XFreeGC(display, gc);
 			} break;
 	#pragma mark MapNotify
 			case MapNotify: {
@@ -361,6 +352,8 @@ int main (int argc, const char * argv[]) {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
+		XFlush(display);
+		XFreeGC(display, gc);
 	}
 	
 	XCloseDisplay(display);
