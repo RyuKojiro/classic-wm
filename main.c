@@ -278,8 +278,6 @@ int main (int argc, const char * argv[]) {
 						
 						// Redraw Resizer
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
-						XFlush(display);
-						XFreeGC(display, gc);
 						
 						// Resize
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
