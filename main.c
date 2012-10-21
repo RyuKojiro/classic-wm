@@ -132,6 +132,7 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	XUngrabButton(display, 1, AnyModifier, window);
 	XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
+	XSelectInput(display, window, SubstructureNotifyMask);
 	addWindowToPool(deco, window, resizer, pool);
 	
 	XRaiseWindow(display, deco);
@@ -143,6 +144,21 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 		XUnmapWindow(display, mw->decorationWindow);
 		XDestroyWindow(display, mw->decorationWindow);
 		removeWindowFromPool(mw, pool);
+	}
+}
+
+static void cleanPool(Display *display, ManagedWindowPool *pool) {
+	ManagedWindow *this = pool->head;
+	ManagedWindow cache;
+	XWindowAttributes attribs;
+	while (this) {
+		// HACK: Not sure why this works on Success, which should be the exact opposite
+		if (XGetWindowAttributes(display, this->actualWindow, &attribs) == Success) {
+			cache.next = this->next;
+			unclaimWindow(display, this->actualWindow, pool);
+			this = &cache;
+		}
+		this = this->next;
 	}
 }
 
@@ -192,7 +208,7 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, SubstructureNotifyMask /* CreateNotify */ | FocusChangeMask | PropertyChangeMask /* ConfigureNotify */ | ButtonPressMask);
+	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
     for(;;)
     {
@@ -338,9 +354,10 @@ int main (int argc, const char * argv[]) {
 				}
 				claimWindow(display, ev.xmap.window, root, pool);
 			} break;
-	#pragma mark DestroyNotify
+	#pragma mark DestroyNotify				
 			case DestroyNotify: {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
+				cleanPool(display, pool);
 			} break;
 	#pragma mark PropertyNotify
 			case PropertyNotify: {
