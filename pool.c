@@ -31,6 +31,8 @@ ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, Win
 	mw->next = pool->head;
 	mw->last_h = 0;
 	mw->last_w = 0;
+	mw->last_x = 0;
+	mw->last_y = 0;
 	
 	pool->head = mw;
 	

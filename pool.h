@@ -15,8 +15,10 @@ struct ManagedWindow_t {
 	Window decorationWindow;
 	Window actualWindow;
 	Window resizer;
-	int last_w;
-	int last_h;
+	unsigned int last_w;
+	unsigned int last_h;
+	unsigned int last_x;
+	unsigned int last_y;
 	struct ManagedWindow_t *next;
 };
 
