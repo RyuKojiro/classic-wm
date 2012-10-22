@@ -395,10 +395,18 @@ int main (int argc, const char * argv[]) {
 				unclaimWindow(display, ev.xdestroywindow.window, pool);
 				cleanPool(display, pool);
 			} break;
+	// Intentionally unhandled notifications that are caught in the structure notification masks
+	#pragma mark UnmapNotify
+			case UnmapNotify:
+	#pragma mark ReparentNotify
+			case ReparentNotify:
+	#pragma mark CreateNotify
+			case CreateNotify:
+	#pragma mark ConfigureNotify
+			case ConfigureNotify:
 	#pragma mark PropertyNotify
-			case PropertyNotify: {
-				
-			} break;
+			case PropertyNotify:
+				break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
