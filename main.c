@@ -181,7 +181,6 @@ static void cleanPool(Display *display, ManagedWindowPool *pool) {
 	ManagedWindow cache;
 	XWindowAttributes attribs;
 	while (this) {
-		// HACK: Not sure why this works on Success, which should be the exact opposite
 		if (XGetWindowAttributes(display, this->actualWindow, &attribs) == Success) {
 			cache.next = this->next;
 			unclaimWindow(display, this->actualWindow, pool);
