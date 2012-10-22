@@ -106,9 +106,33 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 
 static void maximizeWindow(Display *display, ManagedWindow *mw) {
 	XSizeHints attr;
-	long supplied_return = PMaxSize | PMinSize;
+	XSizeHints container;
+	long supplied_return;
+	long supplied_return_container;
 	XGetWMNormalHints(display, mw->actualWindow, &attr, &supplied_return);
+	XGetWMNormalHints(display, mw->decorationWindow, &container, &supplied_return_container);
 	
+	int max_w = (supplied_return | PMaxSize && attr.max_width) ? attr.max_width : XDisplayWidth(display, DefaultScreen(display));
+	int max_h = (supplied_return | PMaxSize && attr.max_height) ? attr.max_height : XDisplayHeight(display, DefaultScreen(display));
+	
+	if (mw->last_h || mw->last_w || mw->last_x || mw->last_y) {
+		XMoveWindow(display, mw->decorationWindow, mw->last_x, mw->last_y);
+		resizeWindow(display, mw, mw->last_w, mw->last_h);
+		
+		mw->last_h = 0;
+		mw->last_w = 0;
+		mw->last_x = 0;
+		mw->last_y = 0;
+	}
+	else { // if we aren't at max size, and there is one, go to it
+		mw->last_h = attr.height + TITLEBAR_THICKNESS + 2;
+		mw->last_w = attr.width + 3;
+		mw->last_x = container.x;
+		mw->last_y = container.y;
+		
+		XMoveWindow(display, mw->decorationWindow, 0, NEW_WINDOW_OFFSET);
+		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
+	}
 }
 
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
@@ -326,19 +350,27 @@ int main (int argc, const char * argv[]) {
 	#pragma mark ButtonRelease
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
-				
+
+				x = ev.xbutton.x_root - attr.x;
+				y = ev.xbutton.y_root - attr.y;
+
 				switch (downState) {
 					case MouseDownStateClose: {
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
 						
-						x = ev.xbutton.x_root - attr.x;
-						y = ev.xbutton.y_root - attr.y;
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 							unclaimWindow(display, ev.xmotion.window, pool);
 						}
 					} break;
 					case MouseDownStateMaximize: {
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
+						
+						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
+							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
+							if (mw) {
+								maximizeWindow(display, mw);
+							}
+						}
 					} break;
 					default:
 						break;
