@@ -228,7 +228,7 @@ int main (int argc, const char * argv[]) {
 	unsigned int i;
 	for (i = 0; i < nchildren; i++) {
 		if (children[i] && children[i] != root) {
-			//reparentWindow(display, ev.xconfigure.window, root, pool);
+			claimWindow(display, children[i], root, pool);
 		}
 		else {
 			logError("Could not find window with XID:%ld\n", children[i]);
