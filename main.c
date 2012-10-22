@@ -109,6 +109,8 @@ static void maximizeWindow(Display *display, ManagedWindow *mw) {
 	XSizeHints container;
 	long supplied_return;
 	long supplied_return_container;
+	char *title;
+	
 	XGetWMNormalHints(display, mw->actualWindow, &attr, &supplied_return);
 	XGetWMNormalHints(display, mw->decorationWindow, &container, &supplied_return_container);
 	
@@ -133,6 +135,9 @@ static void maximizeWindow(Display *display, ManagedWindow *mw) {
 		XMoveWindow(display, mw->decorationWindow, 0, NEW_WINDOW_OFFSET);
 		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
 	}
+
+	XFetchName(display, mw->actualWindow, &title);
+	drawDecorations(display, mw->decorationWindow, title);
 }
 
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
