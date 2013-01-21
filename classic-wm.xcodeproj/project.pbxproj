@@ -12,8 +12,6 @@
 		E621A1A11602B0FF00CBEA9B /* eventnames.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventnames.h; sourceTree = "<group>"; };
 		E621A1A21602B0FF00CBEA9B /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		E621A1A31602B0FF00CBEA9B /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		E621A1A41602B0FF00CBEA9B /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
-		E621A1A51602B0FF00CBEA9B /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
 		E621A1B51602B8AB00CBEA9B /* pool.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pool.c; sourceTree = "<group>"; };
 		E621A1B61602B8AB00CBEA9B /* pool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pool.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -29,8 +27,6 @@
 				E621A1A11602B0FF00CBEA9B /* eventnames.h */,
 				E621A1A21602B0FF00CBEA9B /* main.c */,
 				E621A1A31602B0FF00CBEA9B /* Makefile */,
-				E621A1A41602B0FF00CBEA9B /* window.c */,
-				E621A1A51602B0FF00CBEA9B /* window.h */,
 			);
 			sourceTree = "<group>";
 		};
