@@ -3,7 +3,7 @@
 //  
 //
 //  Created by Daniel Loffgren on 9/10/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Daniel Loffgren. All rights reserved.
 //
 
 #include <X11/Xlib.h>

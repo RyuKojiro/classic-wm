@@ -3,7 +3,7 @@
 //  classic-wm
 //
 //  Created by Daniel Loffgren on 9/13/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Daniel Loffgren. All rights reserved.
 //
 
 #ifndef classic_wm_pool_h
