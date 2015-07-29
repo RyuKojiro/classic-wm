@@ -130,10 +130,9 @@ void drawTitle(Display *display, Window window, GC gc, const char *title, XWindo
 	
 	if (titleWillFit) {
 		// Set up text
-		const char *fontname = "-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0";
-		XFontStruct *font = XLoadQueryFont(display, fontname);
+		XFontStruct *font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
 		if (!font) {
-			fprintf(stderr, "unable to load preferred font: %s using fixed", fontname);
+			fprintf(stderr, "unable to load preferred font: " TITLEBAR_FONTNAME " using fixed");
 			font = XLoadQueryFont(display, "fixed");
 		}
 		XSetFont(display, gc, font->fid);

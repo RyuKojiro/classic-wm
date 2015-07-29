@@ -9,6 +9,9 @@
 #ifndef _decorations_h
 #define _decorations_h
 
+// Titlebar Font
+#define TITLEBAR_FONTNAME		"-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0"
+
 // Hard dimensions
 #define TITLEBAR_THICKNESS		19							// px tall (This should scale everything else)
 #define TITLEBAR_TEXT_OFFSET	14							// ptSize or pxSize
