@@ -159,7 +159,7 @@ static void claimWindow(Display *display, Window window, Window root, ManagedWin
 	
 	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
-	XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
+	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
 	XSelectInput(display, window, SubstructureNotifyMask);
 	addWindowToPool(deco, window, resizer, pool);
