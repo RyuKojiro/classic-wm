@@ -6,7 +6,6 @@
 //  Copyright (c) 2012 Daniel Loffgren. All rights reserved.
 //
 
-#include <X11/Xlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "decorations.h"
@@ -23,7 +22,7 @@ int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	return 0;
 }
 
-Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height, Window *resizer) {
+Window decorateWindow(Display *display, Drawable window, Window root, int x, int y, int width, int height, Window *resizer) {
 	Window newParent;
 	XSetWindowAttributes attrib;
 	XWindowAttributes attr;
@@ -60,7 +59,7 @@ Window decorateWindow(Display *display, Window window, Window root, int x, int y
 	return newParent;
 }
 
-void drawDecorations(Display *display, Window window, const char *title) {
+void drawDecorations(Display *display, Drawable window, const char *title) {
 	XWindowAttributes attr;
 	white = XWhitePixel(display, DefaultScreen(display));
 	black = XBlackPixel(display, DefaultScreen(display));
@@ -119,12 +118,12 @@ void drawDecorations(Display *display, Window window, const char *title) {
 	XFreeGC(display, gc);
 }
 
-void whiteOutTitleBar(Display *display, Window window, GC gc, XWindowAttributes attr){
+void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, 1, 1, attr.width - 3, TITLEBAR_THICKNESS - 2);
 }
 
-void drawTitle(Display *display, Window window, GC gc, const char *title, XWindowAttributes attr){
+void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr){
 	int titleWillFit = !!title;
 	int twidth;
 	
@@ -159,13 +158,13 @@ void drawTitle(Display *display, Window window, GC gc, const char *title, XWindo
 	}
 }
 
-void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, int w, int h){
+void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h){
 	// White out bg
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x - 1, y, w + 3, h + 1);
 }
 
-void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {
+void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	// Draw Border
@@ -183,7 +182,7 @@ void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int 
 	XFillRectangle(display, window, gc, x + 4, y + 4, 5, 5);
 }
 
-void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+void drawMaximizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 	
 	// Draw Border
@@ -194,7 +193,7 @@ void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, in
 	XDrawRectangle(display, window, gc, x, y, w / 2, h / 2);
 }
 
-void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	// Draw Border
@@ -202,7 +201,7 @@ void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w
 	XDrawRectangle(display, window, gc, x, y, w, h);
 }
 
-void drawCollapseButton(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 	
 	// Draw Border
@@ -212,7 +211,7 @@ void drawCollapseButton(Display *display, Window window, GC gc, int x, int y, in
 	XDrawRectangle(display, window, gc, x, y + w / 2 - 1, w, 2);
 }
 
-void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h) {	
+void drawCloseButtonDown(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	drawCloseButton(display, window, gc, x, y, w, h);
 	
 	// Draw first diag
