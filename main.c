@@ -270,15 +270,6 @@ int main (int argc, const char * argv[]) {
 									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
 									 GrabModeAsync, None, None, CurrentTime);
 						start = ev.xbutton;
-						
-						if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
-							collapseWindow(display, mw);
-							lastClickTime = 0;
-						}
-						else {
-							lastClickWindow = mw->decorationWindow;
-							time(&lastClickTime);
-						}
 					}
 					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 					 	drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
@@ -376,8 +367,20 @@ int main (int argc, const char * argv[]) {
 							}
 						}
 					} break;
-					default:
-						break;
+					default: { // Anywhere else on the titlebar
+						if (ev.xkey.window != None) {
+							ManagedWindow *mw = managedWindowForWindow(ev.xkey.window, pool);
+
+							if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
+								collapseWindow(display, mw);
+								lastClickTime = 0;
+							}
+							else {
+								lastClickWindow = mw->decorationWindow;
+								time(&lastClickTime);
+							}
+						}
+					} break;
 				}
 			} break;
 	#pragma mark MapNotify
