@@ -72,7 +72,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 		XFetchName(display, this->actualWindow, &title);
 		XGetWindowAttributes(display, this->decorationWindow, &attr);
 		whiteOutTitleBar(display, this->decorationWindow, gc, attr);
-		drawTitle(display, this->decorationWindow, gc, title, attr);
+		DRAW_ACTION(display, this->decorationWindow, drawTitle(display, this->decorationWindow, gc, title, attr));
 	} while ((this = this->next));
 }
 
@@ -137,7 +137,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw) {
 	}
 
 	XFetchName(display, mw->actualWindow, &title);
-	drawDecorations(display, mw->decorationWindow, title);
+	DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, title));
 }
 
 static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
@@ -323,10 +323,10 @@ int main (int argc, const char * argv[]) {
 
 						// Redraw Titlebar
 						XFetchName(display, mw->actualWindow, &title);
-						drawDecorations(display, mw->decorationWindow, title);
+						DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, title));
 						
 						// Redraw Resizer
-						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+						DRAW_ACTION(display, mw->resizer, drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW));
 					} break;
 					case MouseDownStateMove: {
 						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);

@@ -37,8 +37,8 @@
 #define XC_left_ptr 68
 
 // Double Buffering
-#define DRAW_ACTION(display, window, action)				XdbeSwapInfo swap_info; \
-															swap_info.swap_window = window; \
+static XdbeSwapInfo swap_info;
+#define DRAW_ACTION(display, window, action)				swap_info.swap_window = window; \
 															swap_info.swap_action = XdbeCopied; \
 															XdbeBeginIdiom(display); \
 															XdbeSwapBuffers(display, &swap_info, 1); \
