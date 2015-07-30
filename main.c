@@ -316,17 +316,17 @@ int main (int argc, const char * argv[]) {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
 						XGetWindowAttributes(display, mw->decorationWindow, &attr);
 
+						// Resize
+						resizeWindow(display, mw, attr.width + x, attr.height + y);
+						start.x_root = ev.xbutton.x_root;
+						start.y_root = ev.xbutton.y_root;
+
 						// Redraw Titlebar
 						XFetchName(display, mw->actualWindow, &title);
 						drawDecorations(display, mw->decorationWindow, title);
 						
 						// Redraw Resizer
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
-						
-						// Resize
-						resizeWindow(display, mw, attr.width + x, attr.height + y);
-						start.x_root = ev.xbutton.x_root;
-						start.y_root = ev.xbutton.y_root;
 					} break;
 					case MouseDownStateMove: {
 						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
