@@ -9,6 +9,9 @@
 #ifndef _decorations_h
 #define _decorations_h
 
+#include <X11/Xlib.h>
+#include <X11/extensions/Xdbe.h>
+
 // Titlebar Font
 #define TITLEBAR_FONTNAME		"-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0"
 
@@ -33,19 +36,29 @@
 // Cursors
 #define XC_left_ptr 68
 
+// Double Buffering
+static XdbeSwapInfo swap_info;
+#define DRAW_ACTION(display, window, action)				swap_info.swap_window = window; \
+															swap_info.swap_action = XdbeCopied; \
+															XdbeBeginIdiom(display); \
+															XdbeSwapBuffers(display, &swap_info, 1); \
+															action; \
+															XdbeEndIdiom(display);
+
+
 // Functions
-Window decorateWindow(Display *display, Window window, Window root, int x, int y, int width, int height, Window *resizer);
-void drawDecorations(Display *display, Window window, const char *title);
-void drawTitle(Display *display, Window window, GC gc, const char *title, XWindowAttributes attr);
+Window decorateWindow(Display *display, Drawable window, Window root, int x, int y, int width, int height, Window *resizer);
+void drawDecorations(Display *display, Drawable window, const char *title);
+void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 
 // Individual Decorations
-void whiteOutTitleBar(Display *display, Window window, GC gc, XWindowAttributes attr);
-void whiteOutUnderButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
-void drawCloseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
-void drawCloseButtonDown(Display *display, Window window, GC gc, int x, int y, int w, int h);
-void drawMaximizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
-void drawResizeButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
-void drawCollapseButton(Display *display, Window window, GC gc, int x, int y, int w, int h);
+void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr);
+void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+void drawCloseButtonDown(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+void drawMaximizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
 
 #endif
