@@ -102,6 +102,12 @@ void drawDecorations(Display *display, Drawable window, const char *title) {
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
 
+	// White out the shadow ends
+	XSetForeground(display, gc, white);
+	XDrawPoint(display, window, gc, 0, attr.height - 1);
+	XDrawPoint(display, window, gc, attr.width - 1, 0);
+	XSetForeground(display, gc, black);
+	
 	// Draw Title
 	drawTitle(display, window, gc, title, attr);
 	
