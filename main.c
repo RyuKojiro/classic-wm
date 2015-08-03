@@ -8,7 +8,7 @@
 
 #define LOG_PREFIX	"classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define NEW_WINDOW_OFFSET		22 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
+#define NEW_WINDOW_OFFSET		0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
 
 #include "eventnames.h"
 #include "decorations.h"
