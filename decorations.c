@@ -36,7 +36,7 @@ Window decorateWindow(Display *display, Drawable window, Window root, int x, int
 	
 	// Create New Parent
 	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
-	XReparentWindow(display, window, newParent, 0, TITLEBAR_THICKNESS - 1);
+	XReparentWindow(display, window, newParent, 1, TITLEBAR_THICKNESS);
 	
 	// Create Resize Button Window
 	*resizer = XCreateWindow(display, newParent, RECT_RESIZE_BTN, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
