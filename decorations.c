@@ -61,8 +61,11 @@ Window decorateWindow(Display *display, Drawable window, Window root, int x, int
 
 void drawDecorations(Display *display, Drawable window, const char *title) {
 	XWindowAttributes attr;
-	white = XWhitePixel(display, DefaultScreen(display));
-	black = XBlackPixel(display, DefaultScreen(display));
+	
+	if (!white || !black) {
+		white = XWhitePixel(display, DefaultScreen(display));
+		black = XBlackPixel(display, DefaultScreen(display));
+	}
 	
 	// Create GC
 	GC gc = XCreateGC(display, window, 0, 0);	
