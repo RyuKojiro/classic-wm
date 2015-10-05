@@ -1,4 +1,4 @@
-CC= clang
+#CC= clang
 
 CFLAGS?=	-Os -g
 CFLAGS+=	-Waggregate-return -Wbad-function-cast -Wcast-align
