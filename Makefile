@@ -13,7 +13,7 @@ LDADD+=		-lX11 -lXext
 
 PROG=   classic-wm
 SRCS=   main.c decorations.c pool.c
-OBJS=   $(patsubst %.c, %.o, $(SRCS))
+OBJS=   $(SRCS:.c=.o)
 
 .PHONY: clean
 
