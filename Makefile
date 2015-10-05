@@ -5,7 +5,7 @@ CFLAGS+=	-Waggregate-return -Wbad-function-cast -Wcast-align
 CFLAGS+=	-Wcast-qual -Wdisabled-optimization -Wendif-labels -Wfloat-equal
 CFLAGS+=	-Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs
 CFLAGS+=	-Wpointer-arith -Wredundant-decls -Wsign-compare -Wstrict-prototypes
-CFLAGS+=	-Wundef -Wwrite-strings -Werror
+CFLAGS+=	-Wundef -Wwrite-strings -Wall -Werror
 
 CFLAGS+=	-I/opt/X11/include
 LDFLAGS+=	-L/opt/X11/lib
