@@ -12,6 +12,7 @@
 
 static unsigned long white;
 static unsigned long black;
+static XFontStruct *font;
 
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	rw++;
@@ -141,10 +142,12 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 	
 	if (titleWillFit) {
 		// Set up text
-		XFontStruct *font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
 		if (!font) {
-			fprintf(stderr, "unable to load preferred font: " TITLEBAR_FONTNAME " using fixed");
-			font = XLoadQueryFont(display, "fixed");
+			font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
+			if (!font) {
+				fprintf(stderr, "unable to load preferred font: " TITLEBAR_FONTNAME " using fixed");
+				font = XLoadQueryFont(display, "fixed");
+			}
 		}
 		XSetFont(display, gc, font->fid);
 		twidth = XTextWidth(font, title, (int)strlen(title));
