@@ -70,9 +70,12 @@ void drawDecorations(Display *display, Drawable window, const char *title) {
 	// Create GC
 	GC gc = XCreateGC(display, window, 0, 0);	
 	
-		
 	// Get dimensions
-	XGetWindowAttributes(display, window, &attr);
+	Window w2; // unused
+	XGetGeometry(display, window, &w2,
+				 (int *)&attr.x, (int *)&attr.y,
+				 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
+				 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
 	
 	// Draw bounding box
 	whiteOutTitleBar(display, window, gc, attr);
