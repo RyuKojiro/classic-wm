@@ -76,7 +76,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	} while ((this = this->next));
 }
 
-static void collapseWindow(Display *display, ManagedWindow *mw) {
+static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	XWindowAttributes attr;
 	char *title;
 	XGetWindowAttributes(display, mw->decorationWindow, &attr);
@@ -86,10 +86,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 		XMapWindow(display, mw->actualWindow);
 
 		// Redraw Resizer
-		GC gc = XCreateGC(display, mw->resizer, 0, 0);
 		drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
-		XFlush(display);
-		XFreeGC(display, gc);
 		XRaiseWindow(display, mw->resizer);
 	}
 	else {
@@ -101,10 +98,10 @@ static void collapseWindow(Display *display, ManagedWindow *mw) {
 	}
 	
 	XFetchName(display, mw->actualWindow, &title);
-	drawDecorations(display, mw->decorationWindow, title);
+	drawDecorations(display, mw->decorationWindow, gc, title);
 }
 
-static void maximizeWindow(Display *display, ManagedWindow *mw) {
+static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 	XSizeHints attr;
 	XSizeHints container;
 	long supplied_return;
@@ -137,27 +134,24 @@ static void maximizeWindow(Display *display, ManagedWindow *mw) {
 	}
 
 	XFetchName(display, mw->actualWindow, &title);
-	DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, title));
+	DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, gc, title));
 }
 
-static void claimWindow(Display *display, Window window, Window root, ManagedWindowPool *pool) {
+static void claimWindow(Display *display, Window window, Window root, GC gc, ManagedWindowPool *pool) {
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize;
 	Window resizer;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
 	
-	GC gc = XCreateGC(display, root, 0, 0);	
 	lowerAllWindowsInPool(display, pool, gc);
-	XFlush(display);
-	XFreeGC(display, gc);
 	
 	//XMoveWindow(display, window, attr.x, attr.y);
 	//XResizeWindow(display, window, attr.width, attr.height);
 	
 //	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	
-	Window deco = decorateWindow(display, window, root, attr.x, attr.y, attr.width, attr.height, &resizer);
+	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
 	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
@@ -227,7 +221,10 @@ int main (int argc, const char * argv[]) {
 	unsigned int i;
 	for (i = 0; i < nchildren; i++) {
 		if (children[i] && children[i] != root) {
-			claimWindow(display, children[i], root, pool);
+			GC gc = XCreateGC(display, children[i], 0, 0);
+			claimWindow(display, children[i], root, gc, pool);
+			XFlush(display);
+			XFreeGC(display, gc);
 		}
 		else {
 			logError("Could not find window with XID:%ld\n", children[i]);
@@ -243,6 +240,8 @@ int main (int argc, const char * argv[]) {
         XNextEvent(display, &ev);
 		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		
+		logError("Got event \"%s\"\n", event_names[ev.type]);
+		
 		switch (ev.type) {
 	#pragma mark ButtonPress
 			case ButtonPress: {
@@ -257,7 +256,8 @@ int main (int argc, const char * argv[]) {
 					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					XFetchName(display, mw->actualWindow, &title);
-					drawDecorations(display, mw->decorationWindow, title);
+					
+					drawDecorations(display, mw->decorationWindow, gc, title);
 
 					// Check what was downed
 					x = ev.xbutton.x_root - attr.x;
@@ -305,7 +305,11 @@ int main (int argc, const char * argv[]) {
 				switch (downState) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
-						XGetWindowAttributes(display, mw->decorationWindow, &attr);
+						Window w2; // unused
+						XGetGeometry(display, mw->decorationWindow, &w2,
+									 (int *)&attr.x, (int *)&attr.y,
+									 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
+									 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
 
 						// Resize
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
@@ -314,7 +318,8 @@ int main (int argc, const char * argv[]) {
 
 						// Redraw Titlebar
 						XFetchName(display, mw->actualWindow, &title);
-						DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, title));
+						DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, gc, title));
+						XFree(title);
 						
 						// Redraw Resizer
 						DRAW_ACTION(display, mw->resizer, drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW));
@@ -363,7 +368,7 @@ int main (int argc, const char * argv[]) {
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
 							if (mw) {
-								maximizeWindow(display, mw);
+								maximizeWindow(display, mw, gc);
 							}
 						}
 					} break;
@@ -372,7 +377,7 @@ int main (int argc, const char * argv[]) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xkey.window, pool);
 
 							if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
-								collapseWindow(display, mw);
+								collapseWindow(display, mw, gc);
 								lastClickTime = 0;
 							}
 							else {
@@ -391,7 +396,7 @@ int main (int argc, const char * argv[]) {
 				if (!ev.xmap.window) {
 					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
-				claimWindow(display, ev.xmap.window, root, pool);
+				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
 	#pragma mark DestroyNotify				
 			case DestroyNotify: {

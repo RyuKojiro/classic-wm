@@ -23,7 +23,7 @@ int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	return 0;
 }
 
-Window decorateWindow(Display *display, Drawable window, Window root, int x, int y, int width, int height, Window *resizer) {
+Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int x, int y, int width, int height, Window *resizer) {
 	Window newParent;
 	XSetWindowAttributes attrib;
 	XWindowAttributes attr;
@@ -50,26 +50,19 @@ Window decorateWindow(Display *display, Drawable window, Window root, int x, int
 	// Draw Time
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);
-	drawDecorations(display, newParent, title);
-
-	GC gc = XCreateGC(display, window, 0, 0);	
+	drawDecorations(display, newParent, gc, title);
 	drawResizeButton(display, *resizer, gc, RECT_RESIZE_DRAW);
-	XFlushGC(display, gc);
-	XFreeGC(display, gc);
 
 	return newParent;
 }
 
-void drawDecorations(Display *display, Drawable window, const char *title) {
+void drawDecorations(Display *display, Drawable window, GC gc, const char *title) {
 	XWindowAttributes attr;
 	
 	if (!white || !black) {
 		white = XWhitePixel(display, DefaultScreen(display));
 		black = XBlackPixel(display, DefaultScreen(display));
 	}
-	
-	// Create GC
-	GC gc = XCreateGC(display, window, 0, 0);	
 	
 	// Get dimensions
 	Window w2; // unused
@@ -126,9 +119,6 @@ void drawDecorations(Display *display, Drawable window, const char *title) {
 
 	// Draw Collapse Button
 	//drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
-
-	XFlush(display);
-	XFreeGC(display, gc);
 }
 
 void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
