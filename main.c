@@ -262,7 +262,7 @@ int main (int argc, const char * argv[]) {
         XNextEvent(display, &ev);
 		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		
-		logError("Got event \"%s\"\n", event_names[ev.type]);
+		//logError("Got event \"%s\"\n", event_names[ev.type]);
 		
 		switch (ev.type) {
 	#pragma mark ButtonPress
