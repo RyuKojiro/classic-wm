@@ -5,6 +5,6 @@ Remember when windows had sharp edges?
 
 # Installation
 1. `make`
-2. Install Chicago bitmap font
-  You can convert the original font to a bdf via fontforge, and you should end up with a font identifying as `-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0` (That's what classic-wm looks for.)
+2. Install Chicago bitmap font.
+  * You can convert the original font to a BDF via fontforge, and should end up with a font identifying as `-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0` (That's what classic-wm looks for.)
 3. Run `classic-wm` as your new window manager
