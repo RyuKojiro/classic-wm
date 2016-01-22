@@ -30,7 +30,7 @@
 //#define COLLAPSE_BUTTON_ENABLED
 
 // Titlebar Font
-#define TITLEBAR_FONTNAME		"-FontForge-Chicago-Medium-R-Normal--12-120-75-75-P-78-MacRoman-0"
+#define TITLEBAR_FONTNAME		"-*-Chicago-*-*-*--12-*-*-*-*-*-*-*"
 
 // Hard dimensions
 #define TITLEBAR_THICKNESS		19							// px tall (This should scale everything else)
