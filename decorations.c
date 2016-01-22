@@ -67,6 +67,10 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	drawDecorations(display, newParent, gc, title);
 	drawResizeButton(display, *resizer, gc, RECT_RESIZE_DRAW);
 
+	if (title) {
+		XFree(title);
+	}
+
 	return newParent;
 }
 

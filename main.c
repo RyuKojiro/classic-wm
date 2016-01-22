@@ -98,6 +98,9 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 		XGetWindowAttributes(display, this->decorationWindow, &attr);
 		whiteOutTitleBar(display, this->decorationWindow, gc, attr);
 		DRAW_ACTION(display, this->decorationWindow, drawTitle(display, this->decorationWindow, gc, title, attr));
+		if (title) {
+			XFree(title);
+		}
 	} while ((this = this->next));
 }
 
