@@ -143,7 +143,7 @@ void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttribute
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr){
 	int titleWillFit = !!title;
 	int twidth;
-	
+
 	if (titleWillFit) {
 		// Set up text
 		if (!font) {
@@ -159,11 +159,9 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		if (attr.width < (twidth + 42)) {
 			titleWillFit = 0;
 		}
-	}
 
-	XSetForeground(display, gc, white);
-	if (titleWillFit) {
 		// White out under Title
+		XSetForeground(display, gc, white);
 		XFillRectangle(display, window, gc,
 					   ((attr.width - twidth)/ 2) - 7,
 					   4,
