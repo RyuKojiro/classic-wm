@@ -131,8 +131,10 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	// Draw Maximize Button
 	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
 
+#ifdef COLLAPSE_BUTTON_ENABLED
 	// Draw Collapse Button
 	drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
+#endif
 }
 
 void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
