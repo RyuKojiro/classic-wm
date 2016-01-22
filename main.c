@@ -41,6 +41,7 @@ typedef enum {
 	MouseDownStateMove,
 	MouseDownStateClose,
 	MouseDownStateMaximize,
+	MouseDownStateCollapse,
 	MouseDownStateResize
 } MouseDownState;
 
@@ -307,6 +308,11 @@ int main (int argc, const char * argv[]) {
 						lastClickTime = 0;
 						printPool(pool);
 					}
+					if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
+						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_COLLAPSE_BTN);
+						downState = MouseDownStateCollapse;
+						lastClickTime = 0;
+					}
 					if (!windowAttributesSuggestCollapsed(attr) &&
 						(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
 						// Grab the pointer
@@ -370,6 +376,14 @@ int main (int argc, const char * argv[]) {
 							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 						}
 					} break;
+					case MouseDownStateCollapse: {
+						if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
+							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
+						}
+						else {
+							drawCollapseButton(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
+						}
+					} break;
 					default:
 						break;
 				}
@@ -388,6 +402,13 @@ int main (int argc, const char * argv[]) {
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 							unclaimWindow(display, ev.xmotion.window, pool);
 						}
+					} break;
+					case MouseDownStateCollapse: {
+						drawCollapseButton(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
+
+						ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
+						collapseWindow(display, mw, gc);
+						lastClickTime = 0;
 					} break;
 					case MouseDownStateMaximize: {
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
