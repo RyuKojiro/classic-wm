@@ -98,11 +98,15 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	} while ((this = this->next));
 }
 
+static inline int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
+	return attr.height == (TITLEBAR_THICKNESS + 1);
+}
+
 static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	XWindowAttributes attr;
 	char *title;
 	XGetWindowAttributes(display, mw->decorationWindow, &attr);
-	if (attr.height == (TITLEBAR_THICKNESS + 1)) {
+	if (windowAttributesSuggestCollapsed(attr)) {
 		// collapsed, uncollapse it
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
 		XMapWindow(display, mw->actualWindow);
@@ -303,7 +307,8 @@ int main (int argc, const char * argv[]) {
 						lastClickTime = 0;
 						printPool(pool);
 					}
-					if (ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN)) {
+					if (!windowAttributesSuggestCollapsed(attr) &&
+						(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
 						// Grab the pointer
 						XGrabPointer(display, ev.xbutton.subwindow, True,
 									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
