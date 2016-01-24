@@ -41,7 +41,12 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	Window newParent;
 	XSetWindowAttributes attrib;
 	XWindowAttributes attr;
+	XWindowAttributes incomingAttribs;
 	char *title;
+
+	// This is entirely for window border compensation
+	// FIXME: This _works_, but looks like crap for anything with more than a 1px border, in the future this should do up to one pixel and start adjusting the container window for the remainder
+	XGetWindowAttributes(display, window, &incomingAttribs);
 
 	attr.width = width;
 	attr.height = height + TITLEBAR_THICKNESS;
@@ -51,7 +56,7 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	
 	// Create New Parent
 	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
-	XReparentWindow(display, window, newParent, 1, TITLEBAR_THICKNESS);
+	XReparentWindow(display, window, newParent, 1 - incomingAttribs.border_width, TITLEBAR_THICKNESS - incomingAttribs.border_width);
 	
 	// Create Resize Button Window
 	*resizer = XCreateWindow(display, newParent, RECT_RESIZE_BTN, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
