@@ -111,6 +111,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	if (windowAttributesSuggestCollapsed(attr)) {
 		// collapsed, uncollapse it
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
+		attr.height = mw->last_h;
 		XMapWindow(display, mw->actualWindow);
 
 		// Redraw Resizer
@@ -122,10 +123,11 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		mw->last_w = attr.width;
 		mw->last_h = attr.height;
 		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
+		attr.height = TITLEBAR_THICKNESS + 1;
 		XUnmapWindow(display, mw->actualWindow);
 	}
 	
-	drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
+	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -335,10 +337,18 @@ int main (int argc, const char * argv[]) {
 					}
 				}
 			} break;
-#pragma mark ExposeNotify
+#pragma mark Expose
 			case Expose: {
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
+
 				if (mw) {
+					// TODO: This probably performs terribly, replace me with some caching
+					Window w2; // unused
+					XGetGeometry(display, mw->decorationWindow, &w2,
+								 (int *)&attr.x, (int *)&attr.y,
+								 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
+								 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
+
 					// Redraw titlebar based on active or not
 					if (mw == pool->active) {
 						DRAW_ACTION(display, mw->decorationWindow, {
