@@ -163,7 +163,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 	Window w2; // unused
 	XWindowAttributes geometry;
 	XGetGeometry(display, mw->actualWindow, &w2,
-				 (int *)&attr.x, (int *)&geometry.y,
+				 (int *)&geometry.x, (int *)&geometry.y,
 				 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
 				 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
 
