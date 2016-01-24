@@ -63,8 +63,8 @@ static XdbeSwapInfo swap_info;
 #define DRAW_ACTION(display, window, action)	swap_info.swap_window = window; \
 												swap_info.swap_action = XdbeCopied; \
 												XdbeBeginIdiom(display); \
+												action \
 												XdbeSwapBuffers(display, &swap_info, 1); \
-												action; \
 												XdbeEndIdiom(display);
 
 
