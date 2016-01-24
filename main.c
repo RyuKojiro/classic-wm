@@ -345,22 +345,23 @@ int main (int argc, const char * argv[]) {
 
 				if (mw) {
 					// TODO: This probably performs terribly, replace me with some caching
+					XWindowAttributes geometry;
 					Window w2; // unused
 					XGetGeometry(display, mw->decorationWindow, &w2,
-								 (int *)&attr.x, (int *)&attr.y,
-								 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
-								 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
+								 (int *)&geometry.x, (int *)&geometry.y,
+								 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
+								 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
 
 					// Redraw titlebar based on active or not
 					if (mw == pool->active) {
 						DRAW_ACTION(display, mw->decorationWindow, {
-							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+							drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
 						});
 					}
 					else {
 						DRAW_ACTION(display, mw->decorationWindow, {
-							whiteOutTitleBar(display, mw->decorationBuffer, gc, attr);
-							drawTitle(display, mw->decorationBuffer, gc, mw->title, attr);
+							whiteOutTitleBar(display, mw->decorationBuffer, gc, geometry);
+							drawTitle(display, mw->decorationBuffer, gc, mw->title, geometry);
 						});
 					}
 
