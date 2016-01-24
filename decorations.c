@@ -64,7 +64,7 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	// Draw Time
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);
-	drawDecorations(display, newParent, gc, title);
+	drawDecorations(display, newParent, gc, title, attr);
 	drawResizeButton(display, *resizer, gc, RECT_RESIZE_DRAW);
 
 	if (title) {
@@ -74,20 +74,11 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	return newParent;
 }
 
-void drawDecorations(Display *display, Drawable window, GC gc, const char *title) {
-	XWindowAttributes attr;
-	
+void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr) {
 	if (!white || !black) {
 		white = XWhitePixel(display, DefaultScreen(display));
 		black = XBlackPixel(display, DefaultScreen(display));
 	}
-	
-	// Get dimensions
-	Window w2; // unused
-	XGetGeometry(display, window, &w2,
-				 (int *)&attr.x, (int *)&attr.y,
-				 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
-				 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
 	
 	// Draw bounding box
 	whiteOutTitleBar(display, window, gc, attr);

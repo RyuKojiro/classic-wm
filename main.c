@@ -123,7 +123,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		XUnmapWindow(display, mw->actualWindow);
 	}
 	
-	drawDecorations(display, mw->decorationWindow, gc, mw->title);
+	drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -157,8 +157,17 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
 	}
 
+	// Get dimensions
+	Window w2; // unused
+	XWindowAttributes geometry;
+	XGetGeometry(display, mw->actualWindow, &w2,
+				 (int *)&attr.x, (int *)&geometry.y,
+				 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
+				 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
+
+
 	DRAW_ACTION(display, mw->decorationWindow, {
-		drawDecorations(display, mw->decorationBuffer, gc, mw->title);
+		drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
 	});
 }
 
@@ -278,7 +287,7 @@ int main (int argc, const char * argv[]) {
 					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
 					
-					drawDecorations(display, mw->decorationWindow, gc, mw->title);
+					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
 					// Check what was downed
 					x = ev.xbutton.x_root - attr.x;
@@ -334,20 +343,19 @@ int main (int argc, const char * argv[]) {
 				switch (downState) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
-						Window w2; // unused
-						XGetGeometry(display, mw->decorationWindow, &w2,
-									 (int *)&attr.x, (int *)&attr.y,
-									 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
-									 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
 
 						// Resize
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
 						start.x_root = ev.xbutton.x_root;
 						start.y_root = ev.xbutton.y_root;
 
+						// Persist that info for next iteration
+						attr.width += x;
+						attr.height += y;
+
 						// Redraw Titlebar
 						DRAW_ACTION(display, mw->decorationWindow, {
-							drawDecorations(display, mw->decorationBuffer, gc, mw->title);
+							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
 						});
 
 						// Redraw Resizer
