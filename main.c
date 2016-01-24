@@ -336,9 +336,18 @@ int main (int argc, const char * argv[]) {
 			case Expose: {
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
 				if (mw) {
-					DRAW_ACTION(display, mw->decorationWindow, {
-						drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
-					});
+					// Redraw titlebar based on active or not
+					if (mw == pool->active) {
+						DRAW_ACTION(display, mw->decorationWindow, {
+							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+						});
+					}
+					else {
+						DRAW_ACTION(display, mw->decorationWindow, {
+							whiteOutTitleBar(display, mw->decorationBuffer, gc, attr);
+							drawTitle(display, mw->decorationBuffer, gc, mw->title, attr);
+						});
+					}
 
 					// Redraw Resizer
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
