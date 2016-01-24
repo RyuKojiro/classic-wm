@@ -181,9 +181,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	Window resizer;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
-	
-	lowerAllWindowsInPool(display, pool, gc);
-	
+
 	//XMoveWindow(display, window, attr.x, attr.y);
 	//XResizeWindow(display, window, attr.width, attr.height);
 	
@@ -193,11 +191,15 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XUngrabButton(display, 1, AnyModifier, window);
 	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
+	// Start listening for events on the window
+	// FIXME: is this where focus events should be listened to?
 	XSelectInput(display, window, SubstructureNotifyMask | ExposureMask);
 	XSelectInput(display, deco, ExposureMask);
 	XSelectInput(display, resizer, ExposureMask);
-	addWindowToPool(display, deco, window, resizer, pool);
-	
+
+	pool->active = addWindowToPool(display, deco, window, resizer, pool);
+	lowerAllWindowsInPool(display, pool, gc);
+
 	XRaiseWindow(display, deco);
 }
 
