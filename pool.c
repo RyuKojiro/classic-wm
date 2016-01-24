@@ -32,6 +32,15 @@ ManagedWindowPool *createPool(void) {
 	return pool;
 }
 
+void updateWindowTitle(Display *display, ManagedWindow *mw) {
+	if (mw->title) {
+		XFree(mw->title);
+		mw->title = NULL;
+	}
+	XFetchName(display, mw->actualWindow, &(mw->title));
+
+}
+
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool) {
 	ManagedWindow *mw = malloc(sizeof(ManagedWindow));
 	if (!mw) {
@@ -47,8 +56,9 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	mw->last_w = 0;
 	mw->last_x = 0;
 	mw->last_y = 0;
-
 	mw->decorationBuffer = XdbeAllocateBackBufferName(display, decorationWindow, XdbeCopied);
+	mw->title = NULL;
+	updateWindowTitle(display, mw);
 
 	pool->head = mw;
 	
@@ -66,6 +76,7 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 	if (this == managedWindow) {
 		pool->head = this->next;
 		XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+		XFree(this->title);
 		free(this);
 		return;
 	}

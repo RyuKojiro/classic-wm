@@ -36,6 +36,7 @@ struct ManagedWindow_t {
 	unsigned int last_x;
 	unsigned int last_y;
 	struct ManagedWindow_t *next;
+	char *title;
 };
 
 typedef struct ManagedWindow_t ManagedWindow;
@@ -54,5 +55,6 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 void destroyPool(ManagedWindowPool *pool);
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool);
 void printPool(ManagedWindowPool *pool);
+void updateWindowTitle(Display *display, ManagedWindow *mw);
 
 #endif
