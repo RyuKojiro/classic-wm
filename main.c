@@ -264,7 +264,7 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
+	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask | ExposureMask);
 
     for(;;)
     {
@@ -330,6 +330,18 @@ int main (int argc, const char * argv[]) {
 					}
 				}
 			} break;
+#pragma mark ExposeNotify
+			case Expose: {
+				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
+				if (mw) {
+					DRAW_ACTION(display, mw->decorationWindow, {
+						drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+					});
+
+					// Redraw Resizer
+					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+				}
+			}
 	#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
