@@ -61,11 +61,6 @@ static void logError(const char *format, ... ) {
 	free(buf);
 }
 
-static int dealWithIt(Display *display, XErrorEvent *ev) {
-	logError("X Error %d\n", ev->error_code);
-	return 0;
-}
-
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	// Set some absolute minimums
 	w = MAX(w, ((TITLEBAR_CONTROL_SIZE) * 5));
@@ -240,9 +235,7 @@ int main (int argc, const char * argv[]) {
 	ManagedWindowPool *pool = createPool();
 	
 	/* Set up */
-	XSetErrorHandler(dealWithIt);
-
-	display = XOpenDisplay(getenv("DISPLAY"));	
+	display = XOpenDisplay(getenv("DISPLAY"));
 	if (!display) {
 		logError("Failed to open display, is X running?\n");
 		exit(1);
