@@ -50,7 +50,6 @@ typedef struct ManagedWindowPool_t ManagedWindowPool;
 
 ManagedWindowPool *createPool(void);
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool);
-void activateWindowInPool(Window window, ManagedWindowPool *pool);
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool);
 void destroyPool(ManagedWindowPool *pool);
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool);
