@@ -284,11 +284,12 @@ int main (int argc, const char * argv[]) {
 						break;
 					}
 
-					// Raise and activate the window
+					// Raise and activate the window, while lowering all others
+					pool->active = mw;
 					lowerAllWindowsInPool(display, pool, gc);
 					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
-					
+
 					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
 					// Check what was downed
