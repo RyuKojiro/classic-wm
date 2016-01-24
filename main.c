@@ -89,11 +89,13 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 		return;
 	}
 	do {
-		XGetWindowAttributes(display, this->decorationWindow, &attr);
-		DRAW_ACTION(display, this->decorationWindow, {
-			whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
-			drawTitle(display, this->decorationBuffer, gc, this->title, attr);
-		});
+		if (this != pool->active) {
+			XGetWindowAttributes(display, this->decorationWindow, &attr);
+			DRAW_ACTION(display, this->decorationWindow, {
+				whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
+				drawTitle(display, this->decorationBuffer, gc, this->title, attr);
+			});
+		}
 	} while ((this = this->next));
 }
 
