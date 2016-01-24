@@ -343,7 +343,7 @@ int main (int argc, const char * argv[]) {
 					// Redraw Resizer
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 				}
-			}
+			} break;
 	#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
