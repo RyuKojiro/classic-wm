@@ -333,9 +333,12 @@ int main (int argc, const char * argv[]) {
 	#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
+
 				// Invalidate double clicks
 				lastClickTime = 0;
-				
+
+				// If we have a bunch of MotionNotify events queued up,
+				// drop all but the last one, since all math is relative
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 
 				x = ev.xbutton.x_root - start.x_root;
