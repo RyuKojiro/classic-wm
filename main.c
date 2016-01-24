@@ -198,9 +198,9 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
 	ManagedWindow *mw = managedWindowForWindow(window, pool);
 	if (mw) {
+		removeWindowFromPool(display, mw, pool);
 		XUnmapWindow(display, mw->decorationWindow);
 		XDestroyWindow(display, mw->decorationWindow);
-		removeWindowFromPool(display, mw, pool);
 	}
 }
 
