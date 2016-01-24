@@ -162,16 +162,16 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		XSetFont(display, gc, font->fid);
 		twidth = XTextWidth(font, title, (int)strlen(title));
 
-		if (attr.width < (twidth + 42)) {
-			titleWillFit = 0;
+		if (attr.width < (twidth + 42 + (2 * TITLEBAR_TEXT_MARGIN))) {
+			return;
 		}
 
 		// White out under Title
 		XSetForeground(display, gc, white);
 		XFillRectangle(display, window, gc,
-					   ((attr.width - twidth)/ 2) - 7,
+					   ((attr.width - twidth)/ 2) - TITLEBAR_TEXT_MARGIN,
 					   4,
-					   twidth + 14,
+					   twidth + (2 * TITLEBAR_TEXT_MARGIN),
 					   TITLEBAR_CONTROL_SIZE);
 	
 		// Draw title
