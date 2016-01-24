@@ -189,7 +189,9 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XUngrabButton(display, 1, AnyModifier, window);
 	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
-	XSelectInput(display, window, SubstructureNotifyMask);
+	XSelectInput(display, window, SubstructureNotifyMask | ExposureMask);
+	XSelectInput(display, deco, ExposureMask);
+	XSelectInput(display, resizer, ExposureMask);
 	addWindowToPool(display, deco, window, resizer, pool);
 	
 	XRaiseWindow(display, deco);
@@ -264,7 +266,7 @@ int main (int argc, const char * argv[]) {
 		
 	XFree(children);
 	
-	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask | ExposureMask);
+	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
     for(;;)
     {
