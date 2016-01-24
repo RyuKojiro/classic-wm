@@ -80,15 +80,6 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 		black = XBlackPixel(display, DefaultScreen(display));
 	}
 	
-	// Get dimensions
-	Window w2; // unused
-	if (!attr.width) {
-		XGetGeometry(display, window, &w2,
-					 (int *)&attr.x, (int *)&attr.y,
-					 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
-					 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
-	}
-
 	// Draw bounding box
 	whiteOutTitleBar(display, window, gc, attr);
 	XSetForeground(display, gc, black);

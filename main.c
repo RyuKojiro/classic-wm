@@ -36,8 +36,6 @@
 #include "decorations.h"
 #include "pool.h"
 
-static XWindowAttributes NULL_ATTRIBUTES;
-
 typedef enum {
 	MouseDownStateUnknown = 0,
 	MouseDownStateMove,
@@ -125,7 +123,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		XUnmapWindow(display, mw->actualWindow);
 	}
 	
-	drawDecorations(display, mw->decorationWindow, gc, mw->title, NULL_ATTRIBUTES);
+	drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -159,8 +157,17 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
 	}
 
+	// Get dimensions
+	Window w2; // unused
+	XWindowAttributes geometry;
+	XGetGeometry(display, mw->actualWindow, &w2,
+				 (int *)&attr.x, (int *)&geometry.y,
+				 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
+				 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
+
+
 	DRAW_ACTION(display, mw->decorationWindow, {
-		drawDecorations(display, mw->decorationBuffer, gc, mw->title, NULL_ATTRIBUTES);
+		drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
 	});
 }
 
