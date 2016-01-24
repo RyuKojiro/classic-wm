@@ -24,9 +24,11 @@
 #define classic_wm_pool_h
 
 #include <X11/Xlib.h>
+#include <X11/extensions/Xdbe.h>
 
 struct ManagedWindow_t {
 	Window decorationWindow;
+	XdbeBackBuffer decorationBuffer;
 	Window actualWindow;
 	Window resizer;
 	unsigned int last_w;
@@ -46,9 +48,9 @@ struct ManagedWindowPool_t {
 typedef struct ManagedWindowPool_t ManagedWindowPool;
 
 ManagedWindowPool *createPool(void);
-ManagedWindow *addWindowToPool(Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool);
+ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool);
 void activateWindowInPool(Window window, ManagedWindowPool *pool);
-void removeWindowFromPool(ManagedWindow *managedWindow, ManagedWindowPool *pool);
+void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool);
 void destroyPool(ManagedWindowPool *pool);
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool);
 void printPool(ManagedWindowPool *pool);

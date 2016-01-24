@@ -96,8 +96,10 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	do {
 		XFetchName(display, this->actualWindow, &title);
 		XGetWindowAttributes(display, this->decorationWindow, &attr);
-		whiteOutTitleBar(display, this->decorationWindow, gc, attr);
-		DRAW_ACTION(display, this->decorationWindow, drawTitle(display, this->decorationWindow, gc, title, attr));
+		DRAW_ACTION(display, this->decorationWindow, {
+			whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
+			drawTitle(display, this->decorationBuffer, gc, title, attr);
+		});
 		if (title) {
 			XFree(title);
 		}
@@ -131,6 +133,9 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	
 	XFetchName(display, mw->actualWindow, &title);
 	drawDecorations(display, mw->decorationWindow, gc, title);
+	if (title) {
+		XFree(title);
+	}
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -166,7 +171,12 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 	}
 
 	XFetchName(display, mw->actualWindow, &title);
-	DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, gc, title));
+	DRAW_ACTION(display, mw->decorationWindow, {
+		drawDecorations(display, mw->decorationBuffer, gc, title);
+	});
+	if (title) {
+		XFree(title);
+	}
 }
 
 static void claimWindow(Display *display, Window window, Window root, GC gc, ManagedWindowPool *pool) {
@@ -188,7 +198,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
 	XSelectInput(display, window, SubstructureNotifyMask);
-	addWindowToPool(deco, window, resizer, pool);
+	addWindowToPool(display, deco, window, resizer, pool);
 	
 	XRaiseWindow(display, deco);
 }
@@ -198,7 +208,7 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 	if (mw) {
 		XUnmapWindow(display, mw->decorationWindow);
 		XDestroyWindow(display, mw->decorationWindow);
-		removeWindowFromPool(mw, pool);
+		removeWindowFromPool(display, mw, pool);
 	}
 }
 
@@ -358,11 +368,15 @@ int main (int argc, const char * argv[]) {
 
 						// Redraw Titlebar
 						XFetchName(display, mw->actualWindow, &title);
-						DRAW_ACTION(display, mw->decorationWindow, drawDecorations(display, mw->decorationWindow, gc, title));
-						XFree(title);
-						
+						DRAW_ACTION(display, mw->decorationWindow, {
+							drawDecorations(display, mw->decorationBuffer, gc, title);
+						});
+						if (title) {
+							XFree(title);
+						}
+
 						// Redraw Resizer
-						DRAW_ACTION(display, mw->resizer, drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW));
+						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 					} break;
 					case MouseDownStateMove: {
 						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
