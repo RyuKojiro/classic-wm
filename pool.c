@@ -76,7 +76,8 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 			else {
 				pool->head = this->next;
 			}
-			XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+			// FIXME: I need to be dealloced before the decoration window
+			//XdbeDeallocateBackBufferName(display, this->decorationBuffer);
 			XFree(this->title);
 			free(this);
 			return;
