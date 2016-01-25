@@ -279,7 +279,10 @@ int main (int argc, const char * argv[]) {
     for(;;)
     {
         XNextEvent(display, &ev);
-		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
+		GC gc;
+		if(ev.type != DestroyNotify) {
+			gc = XCreateGC(display, ev.xany.window, 0, 0);
+		}
 		
 		//logError("Got event \"%s\"\n", event_names[ev.type]);
 		
@@ -519,8 +522,11 @@ int main (int argc, const char * argv[]) {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
-		XFlush(display);
-		XFreeGC(display, gc);
+
+		if (ev.type != DestroyNotify) {
+			XFlush(display);
+			XFreeGC(display, gc);
+		}
 	}
 	
 	XCloseDisplay(display);
