@@ -503,7 +503,13 @@ int main (int argc, const char * argv[]) {
 			} break;
 	#pragma mark DestroyNotify				
 			case DestroyNotify: {
-				unclaimWindow(display, ev.xdestroywindow.window, pool);
+				/* NOTE: The XDestroyWindowEvent structure is tricky.
+				 * ev.xany.window lines up with ev.xdestroywindow.event,
+				 * because xdestroyevent.event is the window being
+				 * destroyed, while xdestroyevent.window is used for some
+				 * other toolkit nonsense.
+				 */
+				unclaimWindow(display, ev.xdestroywindow.event, pool);
 				cleanPool(display, pool);
 			} break;
 	// Intentionally unhandled notifications that are caught in the structure notification masks
