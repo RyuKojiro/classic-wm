@@ -70,7 +70,12 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 	ManagedWindow *this = pool->head;
 	while (this) {
 		if (this == managedWindow) {
-			last->next = this->next;
+			if (last) {
+				last->next = this->next;
+			}
+			else {
+				pool->head = this->next;
+			}
 			XdbeDeallocateBackBufferName(display, this->decorationBuffer);
 			XFree(this->title);
 			free(this);
