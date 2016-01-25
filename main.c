@@ -264,7 +264,8 @@ int main (int argc, const char * argv[]) {
     {
         XNextEvent(display, &ev);
 		GC gc;
-		if(ev.type != DestroyNotify) {
+		if(ev.type != DestroyNotify &&
+		   ev.type != UnmapNotify) {
 			gc = XCreateGC(display, ev.xany.window, 0, 0);
 		}
 		
@@ -512,7 +513,8 @@ int main (int argc, const char * argv[]) {
 			} break;
 		}
 
-		if (ev.type != DestroyNotify) {
+		if (ev.type != DestroyNotify &&
+			ev.type != UnmapNotify) {
 			XFlush(display);
 			XFreeGC(display, gc);
 		}
