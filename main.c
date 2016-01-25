@@ -47,6 +47,10 @@ typedef enum {
 	MouseDownStateResize
 } MouseDownState;
 
+// HACK: Find a better way to eat the extraneous Expose events on destruction of decorations
+static Window decorationWindowDestroyed;
+static Window resizerDestroyed;
+
 static void logError(const char *format, ... ) {
 	size_t len = strlen(format) + strlen(LOG_PREFIX);
 	char *buf = malloc(len);
@@ -206,23 +210,10 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
 	ManagedWindow *mw = managedWindowForWindow(window, pool);
 	if (mw) {
+		undecorateWindow(display, mw->decorationWindow, mw->resizer);
+		decorationWindowDestroyed = mw->decorationWindow;
+		resizerDestroyed = mw->resizer;
 		removeWindowFromPool(display, mw, pool);
-		XUnmapWindow(display, mw->decorationWindow);
-		XDestroyWindow(display, mw->decorationWindow);
-	}
-}
-
-static void cleanPool(Display *display, ManagedWindowPool *pool) {
-	ManagedWindow *this = pool->head;
-	ManagedWindow cache;
-	XWindowAttributes attribs;
-	while (this) {
-		if (XGetWindowAttributes(display, this->actualWindow, &attribs) == Success) {
-			cache.next = this->next;
-			unclaimWindow(display, this->actualWindow, pool);
-			this = &cache;
-		}
-		this = this->next;
 	}
 }
 
@@ -274,12 +265,19 @@ int main (int argc, const char * argv[]) {
 	
 	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
-    for(;;)
-    {
-        XNextEvent(display, &ev);
-		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
-		
+	for(;;) {
+		XNextEvent(display, &ev);
 		//logError("Got event \"%s\"\n", event_names[ev.type]);
+		if (ev.xany.window == decorationWindowDestroyed || ev.xany.window == resizerDestroyed) {
+			logError("he for window %ld\n", ev.xany.window);
+			continue;
+		}
+
+		GC gc;
+		if(ev.type != DestroyNotify &&
+		   ev.type != UnmapNotify) {
+			gc = XCreateGC(display, ev.xany.window, 0, 0);
+		}
 		
 		switch (ev.type) {
 	#pragma mark ButtonPress
@@ -498,8 +496,13 @@ int main (int argc, const char * argv[]) {
 			} break;
 	#pragma mark DestroyNotify				
 			case DestroyNotify: {
-				unclaimWindow(display, ev.xdestroywindow.window, pool);
-				cleanPool(display, pool);
+				/* NOTE: The XDestroyWindowEvent structure is tricky.
+				 * ev.xany.window lines up with ev.xdestroywindow.event,
+				 * because xdestroyevent.event is the window being
+				 * destroyed, while xdestroyevent.window is used for some
+				 * other toolkit nonsense.
+				 */
+				unclaimWindow(display, ev.xdestroywindow.event, pool);
 			} break;
 	// Intentionally unhandled notifications that are caught in the structure notification masks
 	#pragma mark UnmapNotify
@@ -517,8 +520,12 @@ int main (int argc, const char * argv[]) {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
-		XFlush(display);
-		XFreeGC(display, gc);
+
+		if (ev.type != DestroyNotify &&
+			ev.type != UnmapNotify) {
+			XFlush(display);
+			XFreeGC(display, gc);
+		}
 	}
 	
 	XCloseDisplay(display);

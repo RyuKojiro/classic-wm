@@ -68,21 +68,22 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
 	ManagedWindow *last = NULL;
 	ManagedWindow *this = pool->head;
-	if (this == managedWindow) {
-		pool->head = this->next;
-		XdbeDeallocateBackBufferName(display, this->decorationBuffer);
-		XFree(this->title);
-		free(this);
-		return;
-	}
-	while (this->next) {
-		last = this;
-		this = this->next;
+	while (this) {
 		if (this == managedWindow) {
-			last->next = this->next;
+			if (last) {
+				last->next = this->next;
+			}
+			else {
+				pool->head = this->next;
+			}
+			// FIXME: I need to be dealloced before the decoration window
+			//XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+			XFree(this->title);
 			free(this);
 			return;
 		}
+		last = this;
+		this = this->next;
 	}
 }
 
@@ -111,18 +112,13 @@ void destroyPool(ManagedWindowPool *pool) {
 void printPool(ManagedWindowPool *pool) {
 	ManagedWindow *this = pool->head;
 	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
-	if (this) {
+	while (this) {
 		fprintf(stderr, "\tManagedWindow %p {\n", this);
 		fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
 		fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
+		fprintf(stderr, "\t\tresizer = %lu,\n", this->resizer);
 		fprintf(stderr, "\t}\n");
-		while (this->next) {
-			this = this->next;
-			fprintf(stderr, "\tManagedWindow %p {\n", this);
-			fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
-			fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
-			fprintf(stderr, "\t}\n");
-		}
+		this = this->next;
 	}
 	fprintf(stderr, "}\n");
 }
