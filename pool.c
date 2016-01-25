@@ -68,21 +68,16 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
 	ManagedWindow *last = NULL;
 	ManagedWindow *this = pool->head;
-	if (this == managedWindow) {
-		pool->head = this->next;
-		XdbeDeallocateBackBufferName(display, this->decorationBuffer);
-		XFree(this->title);
-		free(this);
-		return;
-	}
-	while (this->next) {
-		last = this;
-		this = this->next;
+	while (this) {
 		if (this == managedWindow) {
 			last->next = this->next;
+			XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+			XFree(this->title);
 			free(this);
 			return;
 		}
+		last = this;
+		this = this->next;
 	}
 }
 
