@@ -106,18 +106,13 @@ void destroyPool(ManagedWindowPool *pool) {
 void printPool(ManagedWindowPool *pool) {
 	ManagedWindow *this = pool->head;
 	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
-	if (this) {
+	while (this) {
 		fprintf(stderr, "\tManagedWindow %p {\n", this);
 		fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
 		fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
+		fprintf(stderr, "\t\tresizer = %lu,\n", this->resizer);
 		fprintf(stderr, "\t}\n");
-		while (this->next) {
-			this = this->next;
-			fprintf(stderr, "\tManagedWindow %p {\n", this);
-			fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
-			fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
-			fprintf(stderr, "\t}\n");
-		}
+		this = this->next;
 	}
 	fprintf(stderr, "}\n");
 }
