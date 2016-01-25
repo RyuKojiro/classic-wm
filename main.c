@@ -47,6 +47,10 @@ typedef enum {
 	MouseDownStateResize
 } MouseDownState;
 
+// HACK: Find a better way to eat the extraneous Expose events on destruction of decorations
+static Window decorationWindowDestroyed;
+static Window resizerDestroyed;
+
 static void logError(const char *format, ... ) {
 	size_t len = strlen(format) + strlen(LOG_PREFIX);
 	char *buf = malloc(len);
@@ -207,10 +211,11 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 	ManagedWindow *mw = managedWindowForWindow(window, pool);
 	if (mw) {
 		undecorateWindow(display, mw->decorationWindow, mw->resizer);
+		decorationWindowDestroyed = mw->decorationWindow;
+		resizerDestroyed = mw->resizer;
 		removeWindowFromPool(display, mw, pool);
 	}
 }
-
 
 int main (int argc, const char * argv[]) {
     Display *display;
@@ -260,16 +265,19 @@ int main (int argc, const char * argv[]) {
 	
 	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
-    for(;;)
-    {
-        XNextEvent(display, &ev);
+	for(;;) {
+		XNextEvent(display, &ev);
+		//logError("Got event \"%s\"\n", event_names[ev.type]);
+		if (ev.xany.window == decorationWindowDestroyed || ev.xany.window == resizerDestroyed) {
+			logError("he for window %ld\n", ev.xany.window);
+			continue;
+		}
+
 		GC gc;
 		if(ev.type != DestroyNotify &&
 		   ev.type != UnmapNotify) {
 			gc = XCreateGC(display, ev.xany.window, 0, 0);
 		}
-		
-		//logError("Got event \"%s\"\n", event_names[ev.type]);
 		
 		switch (ev.type) {
 	#pragma mark ButtonPress
