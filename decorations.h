@@ -70,6 +70,7 @@ static XdbeSwapInfo swap_info;
 
 // Functions
 Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int x, int y, int width, int height, Window *resizer);
+void undecorateWindow(Display *display, Window decorationWindow, Window resizer);
 void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);

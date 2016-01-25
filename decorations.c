@@ -83,6 +83,13 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	return newParent;
 }
 
+void undecorateWindow(Display *display, Window decorationWindow, Window resizer) {
+	XUnmapWindow(display, decorationWindow);
+	XDestroyWindow(display, decorationWindow);
+	XUnmapWindow(display, resizer);
+	XDestroyWindow(display, resizer);
+}
+
 void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr) {
 	if (!white || !black) {
 		white = XWhitePixel(display, DefaultScreen(display));
