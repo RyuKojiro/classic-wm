@@ -61,6 +61,10 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
 	XDefineCursor(display, newParent, cur);
 	
+	// Readjust attributes to now refer to the decoration window (these are the same magic numbers as above, fix this sometime)
+	attr.width += 3;
+	attr.height += 2;
+
 	// Draw Time
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);

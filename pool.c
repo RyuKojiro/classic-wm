@@ -65,11 +65,6 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	return mw;
 }
 
-void activateWindowInPool(Window window, ManagedWindowPool *pool) {
-	ManagedWindow *mw = managedWindowForWindow(window, pool);
-	pool->active = mw;
-}
-
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
 	ManagedWindow *last = NULL;
 	ManagedWindow *this = pool->head;

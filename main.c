@@ -89,11 +89,13 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 		return;
 	}
 	do {
-		XGetWindowAttributes(display, this->decorationWindow, &attr);
-		DRAW_ACTION(display, this->decorationWindow, {
-			whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
-			drawTitle(display, this->decorationBuffer, gc, this->title, attr);
-		});
+		if (this != pool->active) {
+			XGetWindowAttributes(display, this->decorationWindow, &attr);
+			DRAW_ACTION(display, this->decorationWindow, {
+				whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
+				drawTitle(display, this->decorationBuffer, gc, this->title, attr);
+			});
+		}
 	} while ((this = this->next));
 }
 
@@ -109,6 +111,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	if (windowAttributesSuggestCollapsed(attr)) {
 		// collapsed, uncollapse it
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
+		attr.height = mw->last_h;
 		XMapWindow(display, mw->actualWindow);
 
 		// Redraw Resizer
@@ -120,10 +123,11 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		mw->last_w = attr.width;
 		mw->last_h = attr.height;
 		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
+		attr.height = TITLEBAR_THICKNESS + 1;
 		XUnmapWindow(display, mw->actualWindow);
 	}
 	
-	drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
+	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -161,7 +165,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 	Window w2; // unused
 	XWindowAttributes geometry;
 	XGetGeometry(display, mw->actualWindow, &w2,
-				 (int *)&attr.x, (int *)&geometry.y,
+				 (int *)&geometry.x, (int *)&geometry.y,
 				 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
 				 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
 
@@ -177,9 +181,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	Window resizer;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
-	
-	lowerAllWindowsInPool(display, pool, gc);
-	
+
 	//XMoveWindow(display, window, attr.x, attr.y);
 	//XResizeWindow(display, window, attr.width, attr.height);
 	
@@ -189,18 +191,24 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XUngrabButton(display, 1, AnyModifier, window);
 	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 
-	XSelectInput(display, window, SubstructureNotifyMask);
-	addWindowToPool(display, deco, window, resizer, pool);
-	
+	// Start listening for events on the window
+	// FIXME: is this where focus events should be listened to?
+	XSelectInput(display, window, SubstructureNotifyMask | ExposureMask);
+	XSelectInput(display, deco, ExposureMask);
+	XSelectInput(display, resizer, ExposureMask);
+
+	pool->active = addWindowToPool(display, deco, window, resizer, pool);
+	lowerAllWindowsInPool(display, pool, gc);
+
 	XRaiseWindow(display, deco);
 }
 
 static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
 	ManagedWindow *mw = managedWindowForWindow(window, pool);
 	if (mw) {
+		removeWindowFromPool(display, mw, pool);
 		XUnmapWindow(display, mw->decorationWindow);
 		XDestroyWindow(display, mw->decorationWindow);
-		removeWindowFromPool(display, mw, pool);
 	}
 }
 
@@ -282,11 +290,12 @@ int main (int argc, const char * argv[]) {
 						break;
 					}
 
-					// Raise and activate the window
+					// Raise and activate the window, while lowering all others
+					pool->active = mw;
 					lowerAllWindowsInPool(display, pool, gc);
 					XRaiseWindow(display, mw->decorationWindow);
 					XGetWindowAttributes(display, mw->decorationWindow, &attr);
-					
+
 					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
 					// Check what was downed
@@ -330,12 +339,44 @@ int main (int argc, const char * argv[]) {
 					}
 				}
 			} break;
+#pragma mark Expose
+			case Expose: {
+				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
+
+				if (mw) {
+					// TODO: This probably performs terribly, replace me with some caching
+					Window w2; // unused
+					XGetGeometry(display, mw->decorationWindow, &w2,
+								 (int *)&attr.x, (int *)&attr.y,
+								 (unsigned int *)&attr.width, (unsigned int *)&attr.height,
+								 (unsigned int *)&attr.border_width, (unsigned int *)&attr.depth);
+
+					// Redraw titlebar based on active or not
+					if (mw == pool->active) {
+						DRAW_ACTION(display, mw->decorationWindow, {
+							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+						});
+					}
+					else {
+						DRAW_ACTION(display, mw->decorationWindow, {
+							whiteOutTitleBar(display, mw->decorationBuffer, gc, attr);
+							drawTitle(display, mw->decorationBuffer, gc, mw->title, attr);
+						});
+					}
+
+					// Redraw Resizer
+					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
+				}
+			} break;
 	#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
+
 				// Invalidate double clicks
 				lastClickTime = 0;
-				
+
+				// If we have a bunch of MotionNotify events queued up,
+				// drop all but the last one, since all math is relative
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 
 				x = ev.xbutton.x_root - start.x_root;
