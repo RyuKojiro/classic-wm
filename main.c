@@ -269,7 +269,6 @@ int main (int argc, const char * argv[]) {
 		XNextEvent(display, &ev);
 		//logError("Got event \"%s\"\n", event_names[ev.type]);
 		if (ev.xany.window == decorationWindowDestroyed || ev.xany.window == resizerDestroyed) {
-			logError("he for window %ld\n", ev.xany.window);
 			continue;
 		}
 
