@@ -316,7 +316,6 @@ int main (int argc, const char * argv[]) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
 						downState = MouseDownStateMaximize;
 						lastClickTime = 0;
-						printPool(pool);
 					}
 #ifdef COLLAPSE_BUTTON_ENABLED
 					if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
