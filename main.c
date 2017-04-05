@@ -28,9 +28,9 @@
 #include <string.h> // logError
 #include <time.h> // time()
 
-#define LOG_PREFIX	"classic-wm: "
+#define LOG_PREFIX        "classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define NEW_WINDOW_OFFSET		0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
+#define NEW_WINDOW_OFFSET 0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
 
 #include "eventnames.h"
 #include "decorations.h"
@@ -189,7 +189,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	//XMoveWindow(display, window, attr.x, attr.y);
 	//XResizeWindow(display, window, attr.width, attr.height);
 	
-//	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
+	//logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	
 	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
@@ -218,11 +218,11 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 }
 
 int main (int argc, const char * argv[]) {
-    Display *display;
+	Display *display;
 	XEvent ev;
 	int screen;
 	XWindowAttributes attr;
-    XButtonEvent start;
+	XButtonEvent start;
 	MouseDownState downState;
 	time_t lastClickTime = 0;
 	Window lastClickWindow = 0;
@@ -279,7 +279,7 @@ int main (int argc, const char * argv[]) {
 		}
 		
 		switch (ev.type) {
-	#pragma mark ButtonPress
+#pragma mark ButtonPress
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
@@ -365,7 +365,7 @@ int main (int argc, const char * argv[]) {
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 				}
 			} break;
-	#pragma mark MotionNotify
+#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
 
@@ -404,15 +404,15 @@ int main (int argc, const char * argv[]) {
 					} break;
 					case MouseDownStateClose: {
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
+							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
 						}
 						else {
-							drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);							
+							drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
 						}
 					} break;
 					case MouseDownStateMaximize: {
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
-							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);							
+							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 						}
 						else {
 							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
@@ -432,7 +432,7 @@ int main (int argc, const char * argv[]) {
 						break;
 				}
 			} break;
-	#pragma mark ButtonRelease
+#pragma mark ButtonRelease
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 
@@ -482,7 +482,7 @@ int main (int argc, const char * argv[]) {
 					} break;
 				}
 			} break;
-	#pragma mark MapNotify
+#pragma mark MapNotify
 			case MapNotify: {
 				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
 					break;
@@ -492,26 +492,26 @@ int main (int argc, const char * argv[]) {
 				}
 				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
-	#pragma mark DestroyNotify				
+#pragma mark DestroyNotify
 			case DestroyNotify: {
 				/* NOTE: The XDestroyWindowEvent structure is tricky.
 				 * ev.xany.window lines up with ev.xdestroywindow.event,
-				 * because xdestroyevent.event is the window being
-				 * destroyed, while xdestroyevent.window is used for some
+				 * because xdestroywindow.event is the window being
+				 * destroyed, while xdestroywindow.window is used for some
 				 * other toolkit nonsense.
 				 */
 				unclaimWindow(display, ev.xdestroywindow.event, pool);
 			} break;
-	// Intentionally unhandled notifications that are caught in the structure notification masks
-	#pragma mark UnmapNotify
+// Intentionally unhandled notifications that are caught in the structure notification masks
+#pragma mark UnmapNotify
 			case UnmapNotify:
-	#pragma mark ReparentNotify
+#pragma mark ReparentNotify
 			case ReparentNotify:
-	#pragma mark CreateNotify
+#pragma mark CreateNotify
 			case CreateNotify:
-	#pragma mark ConfigureNotify
+#pragma mark ConfigureNotify
 			case ConfigureNotify:
-	#pragma mark PropertyNotify
+#pragma mark PropertyNotify
 			case PropertyNotify:
 				break;
 			default: {
