@@ -26,10 +26,7 @@
 #include "pool.h"
 
 ManagedWindowPool *createPool(void) {
-	ManagedWindowPool *pool = malloc(sizeof(ManagedWindowPool));
-	pool->head = NULL;
-	pool->active = NULL;
-	return pool;
+	return calloc(1, sizeof(ManagedWindowPool));
 }
 
 void updateWindowTitle(Display *display, ManagedWindow *mw) {
@@ -38,7 +35,6 @@ void updateWindowTitle(Display *display, ManagedWindow *mw) {
 		mw->title = NULL;
 	}
 	XFetchName(display, mw->actualWindow, &(mw->title));
-
 }
 
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool) {
