@@ -66,6 +66,7 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 }
 
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
+	(void)display;
 	ManagedWindow *last = NULL;
 	ManagedWindow *this = pool->head;
 	while (this) {
