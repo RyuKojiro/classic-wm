@@ -1,25 +1,18 @@
-#CC= clang
+CFLAGS?=  -Os -std=c99 #-g
+CFLAGS+=  -Wall -Werror
 
-CFLAGS?=	-Os -g -std=c99
-CFLAGS+=	-Waggregate-return -Wbad-function-cast -Wcast-align
-CFLAGS+=	-Wcast-qual -Wdisabled-optimization -Wendif-labels -Wfloat-equal
-CFLAGS+=	-Winline -Wmissing-declarations -Wmissing-prototypes -Wnested-externs
-CFLAGS+=	-Wpointer-arith -Wredundant-decls -Wsign-compare -Wstrict-prototypes
-CFLAGS+=	-Wundef -Wwrite-strings -Wall -Werror
-CFLAGS+=	-Wno-unknown-warning-option -Wno-unknown-pragmas -Wno-maybe-uninitialized -Wno-unused-variable
+CFLAGS+=  -I/opt/X11/include
+LDFLAGS+= -L/opt/X11/lib
+LDLIBS+=  -lX11 -lXext
 
-CFLAGS+=	-I/opt/X11/include
-LDFLAGS+=	-L/opt/X11/lib
-LDADD+=		-lX11 -lXext
-
-PROG=   classic-wm
-SRCS=   main.c decorations.c pool.c
-OBJS=   $(SRCS:.c=.o)
-
-.PHONY: clean
+PROG= classic-wm
+SRCS= main.c decorations.c pool.c
+OBJS= $(SRCS:.c=.o)
 
 $(PROG): $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LDADD)
+	$(CC) $(LDFLAGS) $(LDLIBS) -o $@ $(OBJS)
 
 clean:
 	rm -f $(PROG) $(OBJS)
+
+.PHONY: clean
