@@ -64,8 +64,7 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
 	(void)display;
 	ManagedWindow *last = NULL;
-	ManagedWindow *this = pool->head;
-	while (this) {
+	for (ManagedWindow *this = pool->head; this; this = this->next) {
 		if (this == managedWindow) {
 			if (last) {
 				last->next = this->next;
@@ -80,17 +79,14 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 			return;
 		}
 		last = this;
-		this = this->next;
 	}
 }
 
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
-	ManagedWindow *this = pool->head;
-	while (this) {
+	for (ManagedWindow *this = pool->head; this; this = this->next) {
 		if (this->decorationWindow == window || this->actualWindow == window) {
 			return this;
 		}
-		this = this->next;
 	}
 	return NULL;
 }
@@ -107,15 +103,13 @@ void destroyPool(ManagedWindowPool *pool) {
 }
 
 void printPool(ManagedWindowPool *pool) {
-	ManagedWindow *this = pool->head;
 	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
-	while (this) {
+	for (ManagedWindow *this = pool->head; this; this = this->next) {
 		fprintf(stderr, "\tManagedWindow %p {\n", this);
 		fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
 		fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
 		fprintf(stderr, "\t\tresizer = %lu,\n", this->resizer);
 		fprintf(stderr, "\t}\n");
-		this = this->next;
 	}
 	fprintf(stderr, "}\n");
 }
