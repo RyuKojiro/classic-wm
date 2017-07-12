@@ -85,22 +85,16 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 }
 
 static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
-	XWindowAttributes attr;
-	ManagedWindow *this = pool->head;
-
-	if (!this) {
-		// No windows to lower
-		return;
-	}
-	do {
+	for (ManagedWindow *this = pool->head; this; this = this->next) {
 		if (this != pool->active) {
+			XWindowAttributes attr;
 			XGetWindowAttributes(display, this->decorationWindow, &attr);
 			DRAW_ACTION(display, this->decorationWindow, {
 				whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
 				drawTitle(display, this->decorationBuffer, gc, this->title, attr);
 			});
 		}
-	} while ((this = this->next));
+	}
 }
 
 static inline int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
