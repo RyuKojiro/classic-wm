@@ -31,10 +31,8 @@ static XFontStruct *font;
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
 	rw++;
 	rh++;
-	if ((px >= rx && px <= (rx + rw)) && (py >= ry && py <= (ry + rh))) {
-		return 1;
-	}
-	return 0;
+	return ((px >= rx && px <= (rx + rw)) &&
+	        (py >= ry && py <= (ry + rh)));
 }
 
 Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int x, int y, int width, int height, Window *resizer) {
