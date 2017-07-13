@@ -152,10 +152,9 @@ void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttribute
 }
 
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr){
-	int titleWillFit = !!title;
 	int twidth;
 
-	if (titleWillFit) {
+	if (title) {
 		// Set up text
 		if (!font) {
 			font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
@@ -167,6 +166,7 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		XSetFont(display, gc, font->fid);
 		twidth = XTextWidth(font, title, (int)strlen(title));
 
+		// If the title wont fit, don't bother drawing it, just bail
 		if (attr.width < (twidth + 42 + (2 * TITLEBAR_TEXT_MARGIN))) {
 			return;
 		}
