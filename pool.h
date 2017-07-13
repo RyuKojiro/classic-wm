@@ -25,6 +25,7 @@
 
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdbe.h>
+#include <sys/queue.h>
 
 struct ManagedWindow_t {
 	Window decorationWindow;
@@ -38,14 +39,14 @@ struct ManagedWindow_t {
 	unsigned int last_x;
 	unsigned int last_y;
 
-	struct ManagedWindow_t *next;
+	SLIST_ENTRY(ManagedWindow_t) entries;
 	char *title;
 };
 
 typedef struct ManagedWindow_t ManagedWindow;
 
 struct ManagedWindowPool_t {
-	ManagedWindow *head;
+	SLIST_HEAD(windowlist, ManagedWindow_t) windows;
 	ManagedWindow *active;
 };
 

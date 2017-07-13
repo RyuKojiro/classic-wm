@@ -85,7 +85,8 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 }
 
 static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC gc) {
-	for (ManagedWindow *this = pool->head; this; this = this->next) {
+	ManagedWindow *this;
+	SLIST_FOREACH(this, &pool->windows, entries) {
 		if (this != pool->active) {
 			XWindowAttributes attr;
 			XGetWindowAttributes(display, this->decorationWindow, &attr);

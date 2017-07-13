@@ -47,7 +47,6 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	mw->resizer = resizer;
 	mw->actualWindow = actualWindow;
 	mw->decorationWindow = decorationWindow;
-	mw->next = pool->head;
 	mw->last_h = 0;
 	mw->last_w = 0;
 	mw->last_x = 0;
@@ -56,34 +55,24 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	mw->title = NULL;
 	updateWindowTitle(display, mw);
 
-	pool->head = mw;
+	SLIST_INSERT_HEAD(&pool->windows, mw, entries);
 	
 	return mw;
 }
 
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool) {
 	(void)display;
-	ManagedWindow *last = NULL;
-	for (ManagedWindow *this = pool->head; this; this = this->next) {
-		if (this == managedWindow) {
-			if (last) {
-				last->next = this->next;
-			}
-			else {
-				pool->head = this->next;
-			}
-			// FIXME: I need to be dealloced before the decoration window
-			//XdbeDeallocateBackBufferName(display, this->decorationBuffer);
-			XFree(this->title);
-			free(this);
-			return;
-		}
-		last = this;
-	}
+	SLIST_REMOVE(&pool->windows, managedWindow, ManagedWindow_t, entries);
+
+	// FIXME: I need to be dealloced before the decoration window
+	//XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+	XFree(managedWindow->title);
+	free(managedWindow);
 }
 
 ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
-	for (ManagedWindow *this = pool->head; this; this = this->next) {
+	ManagedWindow *this;
+	SLIST_FOREACH(this, &pool->windows, entries) {
 		if (this->decorationWindow == window || this->actualWindow == window) {
 			return this;
 		}
@@ -92,19 +81,19 @@ ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
 }
 
 void destroyPool(ManagedWindowPool *pool) {
-	ManagedWindow *last;
-	ManagedWindow *this = pool->head;
-	while (this->next) {
-		last = this;
-		this = this->next;
-		free(last);
+	ManagedWindow *this;
+	while (!SLIST_EMPTY(&pool->windows)) {
+		this = SLIST_FIRST(&pool->windows);
+		SLIST_REMOVE_HEAD(&pool->windows, entries);
+		free(this);
 	}
-	free(this);
+	free(pool);
 }
 
 void printPool(ManagedWindowPool *pool) {
 	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
-	for (ManagedWindow *this = pool->head; this; this = this->next) {
+	ManagedWindow *this;
+	SLIST_FOREACH(this, &pool->windows, entries) {
 		fprintf(stderr, "\tManagedWindow %p {\n", this);
 		fprintf(stderr, "\t\tdecorationWindow = %lu,\n", this->decorationWindow);
 		fprintf(stderr, "\t\tactualWindow = %lu,\n", this->actualWindow);
