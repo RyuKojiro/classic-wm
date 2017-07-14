@@ -261,7 +261,6 @@ int main (int argc, const char * argv[]) {
 		}
 		
 		switch (ev.type) {
-#pragma mark ButtonPress
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
 					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
@@ -317,7 +316,6 @@ int main (int argc, const char * argv[]) {
 					}
 				}
 			} break;
-#pragma mark Expose
 			case Expose: {
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
 
@@ -347,7 +345,6 @@ int main (int argc, const char * argv[]) {
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 				}
 			} break;
-#pragma mark MotionNotify
 			case MotionNotify: {
 				int x, y;
 
@@ -414,7 +411,6 @@ int main (int argc, const char * argv[]) {
 						break;
 				}
 			} break;
-#pragma mark ButtonRelease
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 
@@ -464,7 +460,6 @@ int main (int argc, const char * argv[]) {
 					} break;
 				}
 			} break;
-#pragma mark MapNotify
 			case MapNotify: {
 				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
 					break;
@@ -474,7 +469,6 @@ int main (int argc, const char * argv[]) {
 				}
 				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
-#pragma mark DestroyNotify
 			case DestroyNotify: {
 				/* NOTE: The XDestroyWindowEvent structure is tricky.
 				 * ev.xany.window lines up with ev.xdestroywindow.event,
@@ -484,17 +478,12 @@ int main (int argc, const char * argv[]) {
 				 */
 				unclaimWindow(display, ev.xdestroywindow.event, pool);
 			} break;
-// Intentionally unhandled notifications that are caught in the structure notification masks
-#pragma mark UnmapNotify
 			case UnmapNotify:
-#pragma mark ReparentNotify
 			case ReparentNotify:
-#pragma mark CreateNotify
 			case CreateNotify:
-#pragma mark ConfigureNotify
 			case ConfigureNotify:
-#pragma mark PropertyNotify
 			case PropertyNotify:
+				// Intentionally unhandled notifications that are caught in the structure notification masks
 				break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
