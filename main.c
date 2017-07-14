@@ -25,16 +25,17 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h> // XSizeHints
 #include <stdarg.h> // va_list
-#include <string.h> // logError
 #include <time.h> // time()
-
-#define LOG_PREFIX        "classic-wm: "
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define NEW_WINDOW_OFFSET 0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
 
 #include "eventnames.h"
 #include "decorations.h"
 #include "pool.h"
+
+#define LOG_PREFIX        "classic-wm: "
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define NEW_WINDOW_OFFSET 0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
+#define logError(...) fprintf(stderr, LOG_PREFIX __VA_ARGS__)
+
 
 typedef enum {
 	MouseDownStateUnknown = 0,
@@ -50,20 +51,6 @@ typedef enum {
 // HACK: Find a better way to eat the extraneous Expose events on destruction of decorations
 static Window decorationWindowDestroyed;
 static Window resizerDestroyed;
-
-static void logError(const char *format, ... ) {
-	size_t len = strlen(format) + strlen(LOG_PREFIX);
-	char *buf = malloc(len);
-	snprintf(buf, strlen(LOG_PREFIX) + 1, LOG_PREFIX);
-	strncat(buf, format, len);
-	
-	va_list in, out;
-	va_start(in, format);
-	va_copy(out, in);
-	vfprintf(stderr, buf, out);
-	va_end(in);
-	free(buf);
-}
 
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	// Set some absolute minimums
