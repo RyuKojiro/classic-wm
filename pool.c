@@ -38,7 +38,7 @@ void updateWindowTitle(Display *display, ManagedWindow *mw) {
 }
 
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool) {
-	ManagedWindow *mw = malloc(sizeof(ManagedWindow));
+	ManagedWindow *mw = calloc(1, sizeof(ManagedWindow));
 	if (!mw) {
 		perror("malloc");
 		return NULL;
@@ -47,12 +47,7 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	mw->resizer = resizer;
 	mw->actualWindow = actualWindow;
 	mw->decorationWindow = decorationWindow;
-	mw->last_h = 0;
-	mw->last_w = 0;
-	mw->last_x = 0;
-	mw->last_y = 0;
 	mw->decorationBuffer = XdbeAllocateBackBufferName(display, decorationWindow, XdbeCopied);
-	mw->title = NULL;
 	updateWindowTitle(display, mw);
 
 	SLIST_INSERT_HEAD(&pool->windows, mw, entries);

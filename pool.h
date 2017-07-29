@@ -39,6 +39,11 @@ struct ManagedWindow_t {
 	unsigned int last_x;
 	unsigned int last_y;
 
+	/* The minimum size hints are cached for performance */
+	unsigned int enforce_min;
+	unsigned int min_w;
+	unsigned int min_h;
+
 	SLIST_ENTRY(ManagedWindow_t) entries;
 	char *title;
 };

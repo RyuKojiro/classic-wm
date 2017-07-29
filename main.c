@@ -55,12 +55,9 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	h = MAX(h, ((TITLEBAR_THICKNESS) * 2) + RESIZE_CONTROL_SIZE);
 	
 	/* Respect the window minimums, if they exist */
-	XSizeHints hints;
-	long supplied_return;
-	XGetWMNormalHints(display, mw->actualWindow, &hints, &supplied_return);
-	if ((supplied_return & PMinSize) == PMinSize) {
-		w = MAX(w, hints.min_width);
-		h = MAX(h, hints.min_height);
+	if (mw->enforce_min) {
+		w = MAX(w, mw->min_w);
+		h = MAX(h, mw->min_h);
 	}
 	
 	XResizeWindow(display, mw->decorationWindow, w, h);
@@ -160,7 +157,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 
 static void claimWindow(Display *display, Window window, Window root, GC gc, ManagedWindowPool *pool) {
 	XSizeHints attr;
-	long supplied_return = PPosition | PSize;
+	long supplied_return = PPosition | PSize | PMinSize;
 	Window resizer;
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
@@ -186,6 +183,12 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 
 	pool->active = addWindowToPool(display, deco, window, resizer, pool);
 	lowerAllWindowsInPool(display, pool, gc);
+
+	if (supplied_return & PMinSize) {
+		pool->active->enforce_min = 1;
+		pool->active->min_w = attr.min_width;
+		pool->active->min_h = attr.min_height;
+	}
 
 	XRaiseWindow(display, deco);
 }
@@ -338,6 +341,10 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case Expose: {
+				if(downState == MouseDownStateResize) {
+					continue;
+				}
+
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
 
 				if (mw) {
