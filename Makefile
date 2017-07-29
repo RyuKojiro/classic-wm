@@ -1,4 +1,4 @@
-CFLAGS?=  -Os -std=c99 #-g
+CFLAGS?=  -Os -std=c89 #-g
 CFLAGS+=  -Wall -Werror
 
 CFLAGS+=  -I/opt/X11/include
