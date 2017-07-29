@@ -26,6 +26,7 @@
 #include <stdarg.h> /* va_list */
 #include <time.h> /* time() */
 #include <err.h> /* warnx */
+#include <sysexits.h> /* EX_UNAVAILABLE */
 
 #include "eventnames.h"
 #include "decorations.h"
@@ -219,8 +220,7 @@ int main (int argc, const char * argv[]) {
 	/* Set up */
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (!display) {
-		warnx("Failed to open display, is X running?\n");
-		exit(1);
+		errx(EX_UNAVAILABLE, "Failed to open display, is X running?\n");
 	}
 
 	screen = DefaultScreen(display);
