@@ -342,7 +342,7 @@ int main (int argc, const char * argv[]) {
 			} break;
 			case Expose: {
 				if(downState == MouseDownStateResize) {
-					continue;
+					break;
 				}
 
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
