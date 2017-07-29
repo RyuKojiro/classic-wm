@@ -204,8 +204,8 @@ int main (int argc, const char * argv[]) {
 	XEvent ev;
 	int screen;
 	XWindowAttributes attr;
-	XButtonEvent start;
-	MouseDownState downState;
+	XButtonEvent start = {0};
+	MouseDownState downState = MouseDownStateUnknown;
 	time_t lastClickTime = 0;
 	Window lastClickWindow = 0;
 	int x, y;
