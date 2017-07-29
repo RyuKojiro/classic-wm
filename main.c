@@ -20,13 +20,13 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdlib.h> /* getenv */
+#include <stdlib.h>    /* getenv */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h> /* XSizeHints */
-#include <stdarg.h> /* va_list */
-#include <time.h> /* time() */
-#include <err.h> /* warnx */
-#include <sysexits.h> /* EX_UNAVAILABLE */
+#include <stdarg.h>    /* va_list */
+#include <time.h>      /* time() */
+#include <err.h>       /* warnx */
+#include <sysexits.h>  /* EX_UNAVAILABLE */
 
 #include "eventnames.h"
 #include "decorations.h"
