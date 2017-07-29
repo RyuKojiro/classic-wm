@@ -20,22 +20,19 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <stdlib.h> /* getenv */
 #include <X11/Xlib.h>
 #include <X11/Xutil.h> /* XSizeHints */
 #include <stdarg.h> /* va_list */
 #include <time.h> /* time() */
+#include <err.h> /* warnx */
 
 #include "eventnames.h"
 #include "decorations.h"
 #include "pool.h"
 
-#define LOG_PREFIX        "classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define NEW_WINDOW_OFFSET 0 /*((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22) */
-#define logError(...) fprintf(stderr, LOG_PREFIX __VA_ARGS__)
-
 
 typedef enum {
 	MouseDownStateUnknown = 0,
@@ -172,7 +169,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XMoveWindow(display, window, attr.x, attr.y);
 	XResizeWindow(display, window, attr.width, attr.height);
 
-	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
+	warnx("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	*/
 	
 	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
@@ -219,7 +216,7 @@ int main (int argc, const char * argv[]) {
 	/* Set up */
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (!display) {
-		logError("Failed to open display, is X running?\n");
+		warnx("Failed to open display, is X running?\n");
 		exit(1);
 	}
 
@@ -243,7 +240,7 @@ int main (int argc, const char * argv[]) {
 			XFreeGC(display, gc);
 		}
 		else {
-			logError("Could not find window with XID:%ld\n", children[i]);
+			warnx("Could not find window with XID:%ld\n", children[i]);
 		}
 	}
 		
@@ -254,7 +251,7 @@ int main (int argc, const char * argv[]) {
 	for(;;) {
 		XNextEvent(display, &ev);
 		/*
-		logError("Got event \"%s\"\n", event_names[ev.type]);
+		warnx("Got event \"%s\"\n", event_names[ev.type]);
 		*/
 		if (ev.xany.window == decorationWindowDestroyed || ev.xany.window == resizerDestroyed) {
 			continue;
@@ -471,7 +468,7 @@ int main (int argc, const char * argv[]) {
 					break;
 				}
 				if (!ev.xmap.window) {
-					logError("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
+					warnx("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
 				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
@@ -497,7 +494,7 @@ int main (int argc, const char * argv[]) {
 				 */
 				break;
 			default: {
-				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
+				warnx("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
 
