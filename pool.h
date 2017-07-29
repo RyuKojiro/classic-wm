@@ -33,7 +33,7 @@ struct ManagedWindow_t {
 	Window actualWindow;
 	Window resizer;
 
-	// The last_ members are for collapsing and maximizing only
+	/* The last_ members are for collapsing and maximizing only */
 	unsigned int last_w;
 	unsigned int last_h;
 	unsigned int last_x;

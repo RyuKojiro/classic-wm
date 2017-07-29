@@ -21,11 +21,11 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h> // getenv
+#include <stdlib.h> /* getenv */
 #include <X11/Xlib.h>
-#include <X11/Xutil.h> // XSizeHints
-#include <stdarg.h> // va_list
-#include <time.h> // time()
+#include <X11/Xutil.h> /* XSizeHints */
+#include <stdarg.h> /* va_list */
+#include <time.h> /* time() */
 
 #include "eventnames.h"
 #include "decorations.h"
@@ -33,7 +33,7 @@
 
 #define LOG_PREFIX        "classic-wm: "
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define NEW_WINDOW_OFFSET 0 //((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22)
+#define NEW_WINDOW_OFFSET 0 /*((XDisplayWidth(display, DefaultScreen(display)) > 2560) ? 0 : 22) */
 #define logError(...) fprintf(stderr, LOG_PREFIX __VA_ARGS__)
 
 
@@ -48,16 +48,16 @@ typedef enum {
 	MouseDownStateResize
 } MouseDownState;
 
-// HACK: Find a better way to eat the extraneous Expose events on destruction of decorations
+/* HACK: Find a better way to eat the extraneous Expose events on destruction of decorations */
 static Window decorationWindowDestroyed;
 static Window resizerDestroyed;
 
 static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
-	// Set some absolute minimums
+	/* Set some absolute minimums */
 	w = MAX(w, ((TITLEBAR_CONTROL_SIZE) * 5));
 	h = MAX(h, ((TITLEBAR_THICKNESS) * 2) + RESIZE_CONTROL_SIZE);
 	
-	// Respect the window minimums, if they exist
+	/* Respect the window minimums, if they exist */
 	XSizeHints hints;
 	long supplied_return;
 	XGetWMNormalHints(display, mw->actualWindow, &hints, &supplied_return);
@@ -85,7 +85,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	}
 }
 
-static inline int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
+static int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
 	return attr.height == (TITLEBAR_THICKNESS + 1);
 }
 
@@ -95,17 +95,17 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 	XGetWindowAttributes(display, mw->decorationWindow, &attr);
 
 	if (windowAttributesSuggestCollapsed(attr)) {
-		// collapsed, uncollapse it
+		/* collapsed, uncollapse it */
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
 		attr.height = mw->last_h;
 		XMapWindow(display, mw->actualWindow);
 
-		// Redraw Resizer
+		/* Redraw Resizer */
 		drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 		XRaiseWindow(display, mw->resizer);
 	}
 	else {
-		// normal, collapse it
+		/* normal, collapse it */
 		mw->last_w = attr.width;
 		mw->last_h = attr.height;
 		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
@@ -137,7 +137,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		mw->last_x = 0;
 		mw->last_y = 0;
 	}
-	else { // if we aren't at max size, and there is one, go to it
+	else { /* if we aren't at max size, and there is one, go to it */
 		mw->last_h = attr.height + TITLEBAR_THICKNESS + 2;
 		mw->last_w = attr.width + 3;
 		mw->last_x = container.x;
@@ -147,8 +147,8 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
 	}
 
-	// Get dimensions
-	Window w2; // unused
+	/* Get dimensions */
+	Window w2; /* unused */
 	XWindowAttributes geometry;
 	XGetGeometry(display, mw->actualWindow, &w2,
 				 (int *)&geometry.x, (int *)&geometry.y,
@@ -168,17 +168,21 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
 
-	//XMoveWindow(display, window, attr.x, attr.y);
-	//XResizeWindow(display, window, attr.width, attr.height);
-	
-	//logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
+	/*
+	XMoveWindow(display, window, attr.x, attr.y);
+	XResizeWindow(display, window, attr.width, attr.height);
+
+	logError("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
+	*/
 	
 	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
-	//XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
+	/*
+	XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
+	*/
 
-	// Start listening for events on the window
-	// FIXME: is this where focus events should be listened to?
+	/* Start listening for events on the window */
+	/* FIXME: is this where focus events should be listened to? */
 	XSelectInput(display, window, SubstructureNotifyMask | ExposureMask);
 	XSelectInput(display, deco, ExposureMask);
 	XSelectInput(display, resizer, ExposureMask);
@@ -249,7 +253,9 @@ int main (int argc, const char * argv[]) {
 
 	for(;;) {
 		XNextEvent(display, &ev);
-		//logError("Got event \"%s\"\n", event_names[ev.type]);
+		/*
+		logError("Got event \"%s\"\n", event_names[ev.type]);
+		*/
 		if (ev.xany.window == decorationWindowDestroyed || ev.xany.window == resizerDestroyed) {
 			continue;
 		}
@@ -268,7 +274,7 @@ int main (int argc, const char * argv[]) {
 						break;
 					}
 
-					// Raise and activate the window, while lowering all others
+					/* Raise and activate the window, while lowering all others */
 					pool->active = mw;
 					lowerAllWindowsInPool(display, pool, gc);
 					XRaiseWindow(display, mw->decorationWindow);
@@ -276,13 +282,13 @@ int main (int argc, const char * argv[]) {
 
 					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
-					// Check what was downed
+					/* Check what was downed */
 					x = ev.xbutton.x_root - attr.x;
 					y = ev.xbutton.y_root - attr.y;
 					downState = MouseDownStateUnknown;
 					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
 						downState = MouseDownStateMove;
-						// Grab the pointer
+						/* Grab the pointer */
 						XGrabPointer(display, ev.xbutton.subwindow, True,
 									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
 									 GrabModeAsync, None, None, CurrentTime);
@@ -306,7 +312,7 @@ int main (int argc, const char * argv[]) {
 #endif
 					if (!windowAttributesSuggestCollapsed(attr) &&
 						(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
-						// Grab the pointer
+						/* Grab the pointer */
 						XGrabPointer(display, ev.xbutton.subwindow, True,
 									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
 									 GrabModeAsync, None, None, CurrentTime);
@@ -320,15 +326,15 @@ int main (int argc, const char * argv[]) {
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
 
 				if (mw) {
-					// TODO: This probably performs terribly, replace me with some caching
+					/* TODO: This probably performs terribly, replace me with some caching */
 					XWindowAttributes geometry;
-					Window w2; // unused
+					Window w2; /* unused */
 					XGetGeometry(display, mw->decorationWindow, &w2,
 								 (int *)&geometry.x, (int *)&geometry.y,
 								 (unsigned int *)&geometry.width, (unsigned int *)&geometry.height,
 								 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
 
-					// Redraw titlebar based on active or not
+					/* Redraw titlebar based on active or not */
 					if (mw == pool->active) {
 						DRAW_ACTION(display, mw->decorationWindow, {
 							drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
@@ -341,18 +347,18 @@ int main (int argc, const char * argv[]) {
 						});
 					}
 
-					// Redraw Resizer
+					/* Redraw Resizer */
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 				}
 			} break;
 			case MotionNotify: {
 				int x, y;
 
-				// Invalidate double clicks
+				/* Invalidate double clicks */
 				lastClickTime = 0;
 
-				// If we have a bunch of MotionNotify events queued up,
-				// drop all but the last one, since all math is relative
+				/* If we have a bunch of MotionNotify events queued up, */
+				/* drop all but the last one, since all math is relative */
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 
 				x = ev.xbutton.x_root - start.x_root;
@@ -361,21 +367,21 @@ int main (int argc, const char * argv[]) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
 
-						// Resize
+						/* Resize */
 						resizeWindow(display, mw, attr.width + x, attr.height + y);
 						start.x_root = ev.xbutton.x_root;
 						start.y_root = ev.xbutton.y_root;
 
-						// Persist that info for next iteration
+						/* Persist that info for next iteration */
 						attr.width += x;
 						attr.height += y;
 
-						// Redraw Titlebar
+						/* Redraw Titlebar */
 						DRAW_ACTION(display, mw->decorationWindow, {
 							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
 						});
 
-						// Redraw Resizer
+						/* Redraw Resizer */
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 					} break;
 					case MouseDownStateMove: {
@@ -444,7 +450,7 @@ int main (int argc, const char * argv[]) {
 							}
 						}
 					} break;
-					default: { // Anywhere else on the titlebar
+					default: { /* Anywhere else on the titlebar */
 						if (ev.xkey.window != None) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xkey.window, pool);
 
@@ -470,7 +476,8 @@ int main (int argc, const char * argv[]) {
 				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
 			case DestroyNotify: {
-				/* NOTE: The XDestroyWindowEvent structure is tricky.
+				/*
+				 * NOTE: The XDestroyWindowEvent structure is tricky.
 				 * ev.xany.window lines up with ev.xdestroywindow.event,
 				 * because xdestroywindow.event is the window being
 				 * destroyed, while xdestroywindow.window is used for some
@@ -483,7 +490,11 @@ int main (int argc, const char * argv[]) {
 			case CreateNotify:
 			case ConfigureNotify:
 			case PropertyNotify:
-				// Intentionally unhandled notifications that are caught in the structure notification masks
+				/*
+				 * These are intentionally unhandled notifications that are
+				 * caught in the structure notification masks. So, don't
+				 * let the default case log them.
+				 */
 				break;
 			default: {
 				logError("Recieved unhandled event \"%s\"\n", event_names[ev.type]);

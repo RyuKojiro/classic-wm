@@ -64,8 +64,10 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 	(void)display;
 	SLIST_REMOVE(&pool->windows, managedWindow, ManagedWindow_t, entries);
 
-	// FIXME: I need to be dealloced before the decoration window
-	//XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+	/* FIXME: I need to be dealloced before the decoration window */
+	/*
+	XdbeDeallocateBackBufferName(display, this->decorationBuffer);
+	*/
 	XFree(managedWindow->title);
 	free(managedWindow);
 }

@@ -42,33 +42,33 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	XWindowAttributes incomingAttribs;
 	char *title;
 
-	// This is entirely for window border compensation
-	// FIXME: This _works_, but looks like crap for anything with more than a 1px border, in the future this should do up to one pixel and start adjusting the container window for the remainder
+	/* This is entirely for window border compensation */
+	/* FIXME: This _works_, but looks like crap for anything with more than a 1px border, in the future this should do up to one pixel and start adjusting the container window for the remainder */
 	XGetWindowAttributes(display, window, &incomingAttribs);
 
 	attr.width = width;
 	attr.height = height + TITLEBAR_THICKNESS;
 	
-	// Flag as override_redirect, so that we don't decorate decorations
+	/* Flag as override_redirect, so that we don't decorate decorations */
 	attrib.override_redirect = 1;
 	
-	// Create New Parent
+	/* Create New Parent */
 	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
 	XReparentWindow(display, window, newParent, 1 - incomingAttribs.border_width, TITLEBAR_THICKNESS - incomingAttribs.border_width);
 	
-	// Create Resize Button Window
+	/* Create Resize Button Window */
 	*resizer = XCreateWindow(display, newParent, RECT_RESIZE_BTN, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
 	XMapRaised(display, *resizer);
 	
-	// Set Cursor
+	/* Set Cursor */
 	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
 	XDefineCursor(display, newParent, cur);
 	
-	// Readjust attributes to now refer to the decoration window (these are the same magic numbers as above, fix this sometime)
+	/* Readjust attributes to now refer to the decoration window (these are the same magic numbers as above, fix this sometime) */
 	attr.width += 3;
 	attr.height += 2;
 
-	// Draw Time
+	/* Draw Time */
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);
 	drawDecorations(display, newParent, gc, title, attr);
@@ -94,54 +94,54 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 		black = XBlackPixel(display, DefaultScreen(display));
 	}
 	
-	// Draw bounding box
+	/* Draw bounding box */
 	whiteOutTitleBar(display, window, gc, attr);
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, RECT_TITLEBAR);
 	
-	// Draw texture
+	/* Draw texture */
 	for (int y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
 		XDrawLine(display, window, gc, 2, y, attr.width - 4, y);
 	}
 	
-	// White out areas for buttons and title
+	/* White out areas for buttons and title */
 	XSetForeground(display, gc, white);
-	// Subwindow box
+	/* Subwindow box */
 	XFillRectangle(display, window, gc,
 				   1,
 				   TITLEBAR_THICKNESS,
 				   attr.width - 3,
 				   attr.height - (TITLEBAR_THICKNESS + 3));
 	
-	// Draw buttons and title
+	/* Draw buttons and title */
 	XSetForeground(display, gc, black);
-	// Subwindow box
+	/* Subwindow box */
 	XDrawRectangle(display, window, gc,
 				   0,
 				   TITLEBAR_THICKNESS - 1,
 				   attr.width - 2,
 				   attr.height - 20);
-	// Shadow
+	/* Shadow */
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
 
-	// White out the shadow ends
+	/* White out the shadow ends */
 	XSetForeground(display, gc, white);
 	XDrawPoint(display, window, gc, 0, attr.height - 1);
 	XDrawPoint(display, window, gc, attr.width - 1, 0);
 	XSetForeground(display, gc, black);
 	
-	// Draw Title
+	/* Draw Title */
 	drawTitle(display, window, gc, title, attr);
 	
-	// Draw Close Button
+	/* Draw Close Button */
 	drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
 	
-	// Draw Maximize Button
+	/* Draw Maximize Button */
 	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
 
 #ifdef COLLAPSE_BUTTON_ENABLED
-	// Draw Collapse Button
+	/* Draw Collapse Button */
 	drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
 #endif
 }
@@ -155,7 +155,7 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 	int twidth;
 
 	if (title) {
-		// Set up text
+		/* Set up text */
 		if (!font) {
 			font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
 			if (!font) {
@@ -166,12 +166,12 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		XSetFont(display, gc, font->fid);
 		twidth = XTextWidth(font, title, (int)strlen(title));
 
-		// If the title wont fit, don't bother drawing it, just bail
+		/* If the title wont fit, don't bother drawing it, just bail */
 		if (attr.width < (twidth + 42 + (2 * TITLEBAR_TEXT_MARGIN))) {
 			return;
 		}
 
-		// White out under Title
+		/* White out under Title */
 		XSetForeground(display, gc, white);
 		XFillRectangle(display, window, gc,
 					   ((attr.width - twidth)/ 2) - TITLEBAR_TEXT_MARGIN,
@@ -179,7 +179,7 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 					   twidth + (2 * TITLEBAR_TEXT_MARGIN),
 					   TITLEBAR_CONTROL_SIZE);
 	
-		// Draw title
+		/* Draw title */
 		XSetForeground(display, gc, black);
 		XSetBackground(display, gc, white);
 		XDrawString(display, window, gc, ((attr.width - twidth)/ 2), TITLEBAR_TEXT_OFFSET, title, (int)strlen(title));
@@ -187,7 +187,7 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 }
 
 void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h){
-	// White out bg
+	/* White out bg */
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x - 1, y, w + 3, h + 1);
 }
@@ -195,17 +195,17 @@ void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y,
 void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
-	// Draw Border
+	/* Draw Border */
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
 
-	// Bottom box
+	/* Bottom box */
 	XDrawRectangle(display, window, gc, x + 5, y + 5, 8, 8);
 
-	// Top box
+	/* Top box */
 	XDrawRectangle(display, window, gc, x + 3, y + 3, 6, 6);
 	
-	// White out overlap
+	/* White out overlap */
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x + 4, y + 4, 5, 5);
 }
@@ -213,18 +213,18 @@ void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, in
 void drawMaximizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 	
-	// Draw Border
+	/* Draw Border */
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
 	
-	// Draw Inside
+	/* Draw Inside */
 	XDrawRectangle(display, window, gc, x, y, w / 2, h / 2);
 }
 
 void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
-	// Draw Border
+	/* Draw Border */
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
 }
@@ -232,7 +232,7 @@ void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int
 void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 	
-	// Draw Border
+	/* Draw Border */
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, x, y, w, h);
 
@@ -242,19 +242,19 @@ void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, 
 void drawCloseButtonDown(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {	
 	drawCloseButton(display, window, gc, x, y, w, h);
 	
-	// Draw first diag
+	/* Draw first diag */
 	XDrawLine(display, window, gc, x + 2, y + 2, x + w - 2, y + h - 2);
 
-	// Draw |
+	/* Draw | */
 	XDrawLine(display, window, gc, x + w / 2, y, x + w / 2, y + h);
 
-	// Draw -
+	/* Draw - */
 	XDrawLine(display, window, gc, x, y + h / 2, x + w, y + h / 2);
 
-	// Draw /
+	/* Draw / */
 	XDrawLine(display, window, gc, x + w - 2, y + 2, x + 2, y + h - 2);
 
-	// Remove Center
+	/* Remove Center */
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x + w / 2 - 1, y + h / 2 - 1, 3, 3);
 }

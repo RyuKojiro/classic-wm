@@ -26,22 +26,22 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdbe.h>
 
-// Enable the collapse button
-//#define COLLAPSE_BUTTON_ENABLED
+/* Enable the collapse button */
+/*#define COLLAPSE_BUTTON_ENABLED */
 
-// Titlebar Font
+/* Titlebar Font */
 #define TITLEBAR_FONTNAME       "-*-Chicago-*-*-*--12-*-*-*-*-*-*-*"
 
-// Hard dimensions
-#define TITLEBAR_THICKNESS      (19)                            // px tall (This should scale everything else)
-#define TITLEBAR_TEXT_OFFSET    (14)                            // ptSize or pxSize
-#define TITLEBAR_TEXTURE_START  (4)                             // px from top to start texture
-#define TITLEBAR_TEXTURE_SPACE  (TITLEBAR_THICKNESS / 10 + 1)   // px space between each line
-#define TITLEBAR_CONTROL_SIZE   (TITLEBAR_THICKNESS - 8)        // px^2
-#define TITLEBAR_TEXT_MARGIN    (7)                             // px on either side
-#define RESIZE_CONTROL_SIZE     (15)                            // px^2
+/* Hard dimensions */
+#define TITLEBAR_THICKNESS      (19)                            /* px tall (This should scale everything else) */
+#define TITLEBAR_TEXT_OFFSET    (14)                            /* ptSize or pxSize */
+#define TITLEBAR_TEXTURE_START  (4)                             /* px from top to start texture */
+#define TITLEBAR_TEXTURE_SPACE  (TITLEBAR_THICKNESS / 10 + 1)   /* px space between each line */
+#define TITLEBAR_CONTROL_SIZE   (TITLEBAR_THICKNESS - 8)        /* px^2 */
+#define TITLEBAR_TEXT_MARGIN    (7)                             /* px on either side */
+#define RESIZE_CONTROL_SIZE     (15)                            /* px^2 */
 
-// Rects
+/* Rects */
 #define RECT_TITLEBAR           0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1
 #define RECT_CLOSE_BTN          9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #define RECT_RESIZE_BTN         attr.width - RESIZE_CONTROL_SIZE + 1, attr.height - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
@@ -49,16 +49,16 @@
 
 #ifdef COLLAPSE_BUTTON_ENABLED
 #define RECT_MAX_BTN            attr.width - (7 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
-// Make this RECT_COLLAPSE_BTN for collapse positioning
+/* Make this RECT_COLLAPSE_BTN for collapse positioning */
 #define RECT_COLLAPSE_BTN       attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #else
 #define RECT_MAX_BTN            attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #endif
 
-// Cursors
+/* Cursors */
 #define XC_left_ptr (68)
 
-// Double Buffering
+/* Double Buffering */
 #define DRAW_ACTION(display, window, action) { \
 	XdbeSwapInfo swap_info; \
 	swap_info.swap_window = window; \
@@ -70,14 +70,14 @@
 }
 
 
-// Functions
+/* Functions */
 Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int x, int y, int width, int height, Window *resizer);
 void undecorateWindow(Display *display, Window decorationWindow, Window resizer);
 void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 
-// Individual Decorations
+/* Individual Decorations */
 void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr);
 void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
 void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
