@@ -100,7 +100,8 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	XDrawRectangle(display, window, gc, RECT_TITLEBAR);
 	
 	/* Draw texture */
-	for (int y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
+	int y;
+	for (y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
 		XDrawLine(display, window, gc, 2, y, attr.width - 4, y);
 	}
 	
