@@ -56,10 +56,8 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	h = MAX(h, ((TITLEBAR_THICKNESS) * 2) + RESIZE_CONTROL_SIZE);
 	
 	/* Respect the window minimums, if they exist */
-	if (mw->enforce_min) {
-		w = MAX(w, mw->min_w);
-		h = MAX(h, mw->min_h);
-	}
+	w = MAX(w, mw->min_w);
+	h = MAX(h, mw->min_h);
 	
 	XResizeWindow(display, mw->decorationWindow, w, h);
 	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 2);
@@ -186,7 +184,6 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	lowerAllWindowsInPool(display, pool, gc);
 
 	if (supplied_return & PMinSize) {
-		pool->active->enforce_min = 1;
 		pool->active->min_w = attr.min_width;
 		pool->active->min_h = attr.min_height;
 	}
