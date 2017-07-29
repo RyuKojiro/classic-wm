@@ -257,12 +257,30 @@ int main (int argc, const char * argv[]) {
 			continue;
 		}
 
-		GC gc;
-		if(ev.type != DestroyNotify &&
-		   ev.type != UnmapNotify) {
-			gc = XCreateGC(display, ev.xany.window, 0, 0);
+		switch(ev.type) {
+			case DestroyNotify:
+				/*
+				 * NOTE: The XDestroyWindowEvent structure is tricky.
+				 * ev.xany.window lines up with ev.xdestroywindow.event,
+				 * because xdestroywindow.event is the window being
+				 * destroyed, while xdestroywindow.window is used for some
+				 * other toolkit nonsense.
+				 */
+				unclaimWindow(display, ev.xdestroywindow.event, pool);
+			case UnmapNotify:
+			case ReparentNotify:
+			case CreateNotify:
+			case ConfigureNotify:
+			case PropertyNotify:
+				/*
+				 * These are intentionally unhandled notifications that are
+				 * caught in the structure notification masks. So, don't
+				 * let the default case log them.
+				 */
+				continue;
 		}
-		
+
+		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		switch (ev.type) {
 			case ButtonPress: {
 				if (ev.xkey.subwindow != None) {
@@ -472,37 +490,13 @@ int main (int argc, const char * argv[]) {
 				}
 				claimWindow(display, ev.xmap.window, root, gc, pool);
 			} break;
-			case DestroyNotify: {
-				/*
-				 * NOTE: The XDestroyWindowEvent structure is tricky.
-				 * ev.xany.window lines up with ev.xdestroywindow.event,
-				 * because xdestroywindow.event is the window being
-				 * destroyed, while xdestroywindow.window is used for some
-				 * other toolkit nonsense.
-				 */
-				unclaimWindow(display, ev.xdestroywindow.event, pool);
-			} break;
-			case UnmapNotify:
-			case ReparentNotify:
-			case CreateNotify:
-			case ConfigureNotify:
-			case PropertyNotify:
-				/*
-				 * These are intentionally unhandled notifications that are
-				 * caught in the structure notification masks. So, don't
-				 * let the default case log them.
-				 */
-				break;
 			default: {
 				warnx("Recieved unhandled event \"%s\"\n", event_names[ev.type]);
 			} break;
 		}
 
-		if (ev.type != DestroyNotify &&
-			ev.type != UnmapNotify) {
-			XFlush(display);
-			XFreeGC(display, gc);
-		}
+		XFlush(display);
+		XFreeGC(display, gc);
 	}
 	
 	XCloseDisplay(display);
