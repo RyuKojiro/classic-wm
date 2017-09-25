@@ -26,9 +26,6 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/Xdbe.h>
 
-/* Enable the collapse button */
-/*#define COLLAPSE_BUTTON_ENABLED */
-
 /* Titlebar Font */
 #define TITLEBAR_FONTNAME       "-*-Chicago-*-*-*--12-*-*-*-*-*-*-*"
 
@@ -47,7 +44,7 @@
 #define RECT_RESIZE_BTN         attr.width - RESIZE_CONTROL_SIZE + 1, attr.height - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 #define RECT_RESIZE_DRAW        0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 
-#ifdef COLLAPSE_BUTTON_ENABLED
+#if COLLAPSE_BUTTON_ENABLED
 #define RECT_MAX_BTN            attr.width - (7 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 /* Make this RECT_COLLAPSE_BTN for collapse positioning */
 #define RECT_COLLAPSE_BTN       attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1

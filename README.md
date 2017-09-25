@@ -16,7 +16,7 @@ classic-wm gives you Mac OS [System 6](https://en.wikipedia.org/wiki/System_6) (
 3. Run `classic-wm` as your new window manager
 
 # Collapsing
-You can enable the single-click collapse button shown below by uncommenting the `COLLAPSE_BUTTON_ENABLED` definition in `decorations.h`.
+You can enable the single-click collapse button shown below by building with `make COLLAPSE_BUTTON_ENABLED=1`.
 
 ![Collapse Button](https://gist.githubusercontent.com/RyuKojiro/c24128fe6e30e6d0eb83/raw/fbe93d6c777107506aa1babba382b1dd42c02151/collapse-button.png)
 

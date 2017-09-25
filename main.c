@@ -40,7 +40,7 @@ typedef enum {
 	MouseDownStateMove,
 	MouseDownStateClose,
 	MouseDownStateMaximize,
-#ifdef COLLAPSE_BUTTON_ENABLED
+#if COLLAPSE_BUTTON_ENABLED
 	MouseDownStateCollapse,
 #endif
 	MouseDownStateResize
@@ -318,7 +318,7 @@ int main (int argc, const char * argv[]) {
 						downState = MouseDownStateMaximize;
 						lastClickTime = 0;
 					}
-#ifdef COLLAPSE_BUTTON_ENABLED
+#if COLLAPSE_BUTTON_ENABLED
 					if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
 						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_COLLAPSE_BTN);
 						downState = MouseDownStateCollapse;
@@ -378,7 +378,7 @@ int main (int argc, const char * argv[]) {
 
 				/* If we have a bunch of MotionNotify events queued up, */
 				/* drop all but the last one, since all math is relative */
-				while(XCheckTypedEvent(display, MotionNotify, &ev));
+/*				while(XCheckTypedEvent(display, MotionNotify, &ev));*/
 
 				x = ev.xbutton.x_root - start.x_root;
 				y = ev.xbutton.y_root - start.y_root;
@@ -422,7 +422,7 @@ int main (int argc, const char * argv[]) {
 							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 						}
 					} break;
-#ifdef COLLAPSE_BUTTON_ENABLED
+#if COLLAPSE_BUTTON_ENABLED
 					case MouseDownStateCollapse: {
 						if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
 							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
@@ -450,7 +450,7 @@ int main (int argc, const char * argv[]) {
 							unclaimWindow(display, ev.xmotion.window, pool);
 						}
 					} break;
-#ifdef COLLAPSE_BUTTON_ENABLED
+#if COLLAPSE_BUTTON_ENABLED
 					case MouseDownStateCollapse: {
 						drawCollapseButton(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
 
@@ -499,7 +499,6 @@ int main (int argc, const char * argv[]) {
 			} break;
 		}
 
-		XFlush(display);
 		XFreeGC(display, gc);
 	}
 	
