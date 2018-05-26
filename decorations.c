@@ -53,8 +53,8 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	attrib.override_redirect = 1;
 
 	/* Create New Parent */
-	newParent = XCreateWindow(display, root, x, y, width + 3, height + 2 + TITLEBAR_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
-	XReparentWindow(display, window, newParent, 1 - incomingAttribs.border_width, TITLEBAR_THICKNESS - incomingAttribs.border_width);
+	newParent = XCreateWindow(display, root, x, y, width + FRAME_HORIZONTAL_THICKNESS, height + FRAME_VERTICAL_THICKNESS, 0, CopyFromParent, InputOutput, CopyFromParent, CWOverrideRedirect, &attrib);
+	XReparentWindow(display, window, newParent, FRAME_LEFT_THICKNESS - incomingAttribs.border_width, TITLEBAR_THICKNESS - incomingAttribs.border_width);
 
 	/* Create Resize Button Window */
 	*resizer = XCreateWindow(display, newParent, RECT_RESIZE_BTN, 0, CopyFromParent, CopyFromParent, CopyFromParent, 0, 0);
@@ -64,9 +64,9 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	Cursor cur = XCreateFontCursor(display, XC_left_ptr);
 	XDefineCursor(display, newParent, cur);
 
-	/* Readjust attributes to now refer to the decoration window (these are the same magic numbers as above, fix this sometime) */
-	attr.width += 3;
-	attr.height += 2;
+	/* Readjust attributes to now refer to the decoration window */
+	attr.width += FRAME_HORIZONTAL_THICKNESS;
+	attr.height += FRAME_BOTTOM_THICKNESS;
 
 	/* Draw Time */
 	XMapWindow(display, newParent);
@@ -109,19 +109,19 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	XSetForeground(display, gc, white);
 	/* Subwindow box */
 	XFillRectangle(display, window, gc,
-				   1,
+				   FRAME_RIGHT_THICKNESS,
 				   TITLEBAR_THICKNESS,
-				   attr.width - 3,
-				   attr.height - (TITLEBAR_THICKNESS + 3));
+				   attr.width - FRAME_HORIZONTAL_THICKNESS,
+				   attr.height - FRAME_VERTICAL_THICKNESS - 1); /* FIXME: Is this extra 1 necessary? */
 
 	/* Draw buttons and title */
 	XSetForeground(display, gc, black);
-	/* Subwindow box */
+	/* Subwindow box - each edge is tucked in one pixel */
 	XDrawRectangle(display, window, gc,
-				   0,
+				   FRAME_LEFT_THICKNESS - 1,
 				   TITLEBAR_THICKNESS - 1,
-				   attr.width - 2,
-				   attr.height - 20);
+				   attr.width - FRAME_LEFT_THICKNESS - 1,
+				   attr.height - TITLEBAR_THICKNESS - 1);
 	/* Shadow */
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
