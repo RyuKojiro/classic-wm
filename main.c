@@ -213,7 +213,6 @@ int main (int argc, const char * argv[]) {
 	MouseDownState downState = MouseDownStateUnknown;
 	time_t lastClickTime = 0;
 	Window lastClickWindow = 0;
-	int x, y;
 
 	ManagedWindowPool *pool = createPool();
 
@@ -301,8 +300,8 @@ int main (int argc, const char * argv[]) {
 					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
 					/* Check what was downed */
-					x = ev.xbutton.x_root - attr.x;
-					y = ev.xbutton.y_root - attr.y;
+					int x = ev.xbutton.x_root - attr.x;
+					int y = ev.xbutton.y_root - attr.y;
 					downState = MouseDownStateUnknown;
 					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
 						downState = MouseDownStateMove;
@@ -374,8 +373,6 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case MotionNotify: {
-				int x, y;
-
 				/* Invalidate double clicks */
 				lastClickTime = 0;
 
@@ -383,8 +380,8 @@ int main (int argc, const char * argv[]) {
 				/* drop all but the last one, since all math is relative */
 /*				while(XCheckTypedEvent(display, MotionNotify, &ev));*/
 
-				x = ev.xbutton.x_root - start.x_root;
-				y = ev.xbutton.y_root - start.y_root;
+				int x = ev.xbutton.x_root - start.x_root;
+				int y = ev.xbutton.y_root - start.y_root;
 				switch (downState) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
@@ -442,8 +439,8 @@ int main (int argc, const char * argv[]) {
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
 
-				x = ev.xbutton.x_root - attr.x;
-				y = ev.xbutton.y_root - attr.y;
+				int x = ev.xbutton.x_root - attr.x;
+				int y = ev.xbutton.y_root - attr.y;
 
 				switch (downState) {
 					case MouseDownStateClose: {
