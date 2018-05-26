@@ -54,11 +54,11 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 	/* Set some absolute minimums */
 	w = MAX(w, ((TITLEBAR_CONTROL_SIZE) * 5));
 	h = MAX(h, ((TITLEBAR_THICKNESS) * 2) + RESIZE_CONTROL_SIZE);
-	
+
 	/* Respect the window minimums, if they exist */
 	w = MAX(w, mw->min_w);
 	h = MAX(h, mw->min_h);
-	
+
 	XResizeWindow(display, mw->decorationWindow, w, h);
 	XResizeWindow(display, mw->actualWindow, w - 3, h - TITLEBAR_THICKNESS - 2);
 	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE - 2, h - RESIZE_CONTROL_SIZE - 2);
@@ -105,7 +105,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		attr.height = TITLEBAR_THICKNESS + 1;
 		XUnmapWindow(display, mw->actualWindow);
 	}
-	
+
 	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
 }
 
@@ -117,14 +117,14 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 
 	XGetWMNormalHints(display, mw->actualWindow, &attr, &supplied_return);
 	XGetWMNormalHints(display, mw->decorationWindow, &container, &supplied_return_container);
-	
+
 	int max_w = (supplied_return | PMaxSize && attr.max_width) ? attr.max_width : XDisplayWidth(display, DefaultScreen(display));
 	int max_h = (supplied_return | PMaxSize && attr.max_height) ? attr.max_height : XDisplayHeight(display, DefaultScreen(display));
-	
+
 	if (mw->last_h || mw->last_w || mw->last_x || mw->last_y) {
 		XMoveWindow(display, mw->decorationWindow, mw->last_x, mw->last_y);
 		resizeWindow(display, mw, mw->last_w, mw->last_h);
-		
+
 		mw->last_h = 0;
 		mw->last_w = 0;
 		mw->last_x = 0;
@@ -135,7 +135,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		mw->last_w = attr.width + 3;
 		mw->last_x = container.x;
 		mw->last_y = container.y;
-		
+
 		XMoveWindow(display, mw->decorationWindow, 0, NEW_WINDOW_OFFSET);
 		resizeWindow(display, mw, max_w, max_h - NEW_WINDOW_OFFSET);
 	}
@@ -158,7 +158,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XSizeHints attr;
 	long supplied_return = PPosition | PSize | PMinSize;
 	Window resizer;
-	
+
 	XGetWMNormalHints(display, window, &attr, &supplied_return);
 
 	/*
@@ -167,7 +167,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 
 	warnx("Trying to reparent %d at {%d, %d, %d, %d} with flags %d\n", window, attr.x, attr.y, attr.width, attr.height, attr.flags);
 	*/
-	
+
 	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
 	XUngrabButton(display, 1, AnyModifier, window);
 	/*
@@ -213,7 +213,7 @@ int main (int argc, const char * argv[]) {
 	int x, y;
 
 	ManagedWindowPool *pool = createPool();
-	
+
 	/* Set up */
 	display = XOpenDisplay(getenv("DISPLAY"));
 	if (!display) {
@@ -229,7 +229,7 @@ int main (int argc, const char * argv[]) {
 	unsigned int nchildren;
 
 	XQueryTree(display, root, &root, &parent, &children, &nchildren);
-	
+
 	/* Initial Traverse on Startup */
 	unsigned int i;
 	for (i = 0; i < nchildren; i++) {
@@ -243,9 +243,9 @@ int main (int argc, const char * argv[]) {
 			warnx("Could not find window with XID:%ld\n", children[i]);
 		}
 	}
-		
+
 	XFree(children);
-	
+
 	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
 	for(;;) {
@@ -445,7 +445,7 @@ int main (int argc, const char * argv[]) {
 				switch (downState) {
 					case MouseDownStateClose: {
 						drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
-						
+
 						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
 							unclaimWindow(display, ev.xmotion.window, pool);
 						}
@@ -461,7 +461,7 @@ int main (int argc, const char * argv[]) {
 #endif
 					case MouseDownStateMaximize: {
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
-						
+
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
 							if (mw) {
@@ -501,9 +501,9 @@ int main (int argc, const char * argv[]) {
 
 		XFreeGC(display, gc);
 	}
-	
+
 	XCloseDisplay(display);
 	destroyPool(pool);
-	
+
 	return 0;
 }

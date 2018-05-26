@@ -43,7 +43,7 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 		perror("malloc");
 		return NULL;
 	}
-	
+
 	mw->resizer = resizer;
 	mw->actualWindow = actualWindow;
 	mw->decorationWindow = decorationWindow;
@@ -51,7 +51,7 @@ ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window
 	updateWindowTitle(display, mw);
 
 	SLIST_INSERT_HEAD(&pool->windows, mw, entries);
-	
+
 	return mw;
 }
 
