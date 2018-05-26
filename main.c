@@ -202,6 +202,9 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 }
 
 int main (int argc, const char * argv[]) {
+	(void)argc;
+	(void)argv;
+
 	Display *display;
 	XEvent ev;
 	int screen;
