@@ -30,31 +30,32 @@
 #define TITLEBAR_FONTNAME       "-*-Chicago-*-*-*--12-*-*-*-*-*-*-*"
 
 /* Hard dimensions */
-#define TITLEBAR_THICKNESS      (19)                            /* px tall (This should scale everything else) */
-#define TITLEBAR_TEXT_OFFSET    (14)                            /* ptSize or pxSize */
-#define TITLEBAR_TEXTURE_START  (4)                             /* px from top to start texture */
-#define TITLEBAR_TEXTURE_SPACE  (TITLEBAR_THICKNESS / 10 + 1)   /* px space between each line */
-#define TITLEBAR_CONTROL_SIZE   (TITLEBAR_THICKNESS - 8)        /* px^2 */
-#define TITLEBAR_TEXT_MARGIN    (7)                             /* px on either side */
-#define RESIZE_CONTROL_SIZE     (15)                            /* px^2 */
-#define FRAME_LEFT_THICKNESS    (1)
-#define FRAME_RIGHT_THICKNESS   (2)
-#define FRAME_BOTTOM_THICKNESS  (2)
-#define COLLAPSED_THICKNESS     (TITLEBAR_THICKNESS - 1 + FRAME_BOTTOM_THICKNESS)
-
+#define TITLEBAR_THICKNESS         (19)                            /* px tall (This should scale everything else) */
+#define TITLEBAR_TEXT_OFFSET       (14)                            /* ptSize or pxSize */
+#define TITLEBAR_TEXTURE_START     (4)                             /* px from top to start texture */
+#define TITLEBAR_TEXTURE_SPACE     (TITLEBAR_THICKNESS / 10 + 1)   /* px space between each line */
+#define TITLEBAR_CONTROL_SIZE      (TITLEBAR_THICKNESS - 8)        /* px^2 */
+#define TITLEBAR_TEXT_MARGIN       (7)                             /* px on either side */
+#define RESIZE_CONTROL_SIZE        (15)                            /* px^2 */
+#define FRAME_LEFT_THICKNESS       (1)
+#define FRAME_RIGHT_THICKNESS      (2)
+#define FRAME_BOTTOM_THICKNESS     (2)
+#define COLLAPSED_THICKNESS        (TITLEBAR_THICKNESS - 1 + FRAME_BOTTOM_THICKNESS)
+#define FRAME_VERTICAL_THICKNESS   (TITLEBAR_THICKNESS + FRAME_BOTTOM_THICKNESS)
+#define FRAME_HORIZONTAL_THICKNESS (FRAME_LEFT_THICKNESS + FRAME_RIGHT_THICKNESS)
 
 /* Rects */
-#define RECT_TITLEBAR           0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1
-#define RECT_CLOSE_BTN          9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
-#define RECT_RESIZE_BTN         attr.width - RESIZE_CONTROL_SIZE + 1, attr.height - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
-#define RECT_RESIZE_DRAW        0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
+#define RECT_TITLEBAR              0, 0, attr.width - 2, TITLEBAR_THICKNESS - 1
+#define RECT_CLOSE_BTN             9, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+#define RECT_RESIZE_BTN            attr.width - RESIZE_CONTROL_SIZE + 1, attr.height - RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
+#define RECT_RESIZE_DRAW           0, 0, RESIZE_CONTROL_SIZE, RESIZE_CONTROL_SIZE
 
 #if COLLAPSE_BUTTON_ENABLED
-#define RECT_MAX_BTN            attr.width - (7 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
-/* Make this RECT_COLLAPSE_BTN for collapse positioning */
-#define RECT_COLLAPSE_BTN       attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+#define RECT_MAX_BTN               attr.width - (7 + TITLEBAR_CONTROL_SIZE) * 2 - 2, 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+/* Make this RECT_COLLAPSE_BTN f   or collapse positioning */
+#define RECT_COLLAPSE_BTN          attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #else
-#define RECT_MAX_BTN            attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
+#define RECT_MAX_BTN               attr.width - (10 + TITLEBAR_CONTROL_SIZE), 4, TITLEBAR_CONTROL_SIZE - 1, TITLEBAR_CONTROL_SIZE - 1
 #endif
 
 /* Cursors */

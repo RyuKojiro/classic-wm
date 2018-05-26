@@ -61,7 +61,7 @@ static void resizeWindow(Display *display, ManagedWindow *mw, int w, int h) {
 
 	/* Size the decorations as requested, and inset the actual window */
 	XResizeWindow(display, mw->decorationWindow, w, h);
-	XResizeWindow(display, mw->actualWindow, w - FRAME_LEFT_THICKNESS - FRAME_RIGHT_THICKNESS, h - TITLEBAR_THICKNESS - FRAME_BOTTOM_THICKNESS);
+	XResizeWindow(display, mw->actualWindow, w - FRAME_HORIZONTAL_THICKNESS, h - FRAME_VERTICAL_THICKNESS);
 	XMoveWindow(display, mw->resizer, w - RESIZE_CONTROL_SIZE - FRAME_RIGHT_THICKNESS, h - RESIZE_CONTROL_SIZE - FRAME_BOTTOM_THICKNESS);
 }
 
@@ -132,8 +132,8 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 		mw->last_y = 0;
 	}
 	else { /* if we aren't at max size, and there is one, go to it */
-		mw->last_h = attr.height + TITLEBAR_THICKNESS + FRAME_BOTTOM_THICKNESS;
-		mw->last_w = attr.width + FRAME_LEFT_THICKNESS + FRAME_LEFT_THICKNESS;
+		mw->last_h = attr.height + FRAME_VERTICAL_THICKNESS;
+		mw->last_w = attr.width + FRAME_HORIZONTAL_THICKNESS;
 		mw->last_x = container.x;
 		mw->last_y = container.y;
 
