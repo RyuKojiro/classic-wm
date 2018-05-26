@@ -20,7 +20,7 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
+#include <err.h>
 #include <string.h>
 #include "decorations.h"
 
@@ -160,7 +160,7 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		if (!font) {
 			font = XLoadQueryFont(display, TITLEBAR_FONTNAME);
 			if (!font) {
-				fprintf(stderr, "unable to load preferred font: " TITLEBAR_FONTNAME " using fixed");
+				warnx("unable to load preferred font: " TITLEBAR_FONTNAME " using fixed");
 				font = XLoadQueryFont(display, "fixed");
 			}
 		}
