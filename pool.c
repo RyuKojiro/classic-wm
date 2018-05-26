@@ -20,13 +20,15 @@
  * IN THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "pool.h"
 
 ManagedWindowPool *createPool(void) {
-	return calloc(1, sizeof(ManagedWindowPool));
+	ManagedWindowPool *pool = calloc(1, sizeof(ManagedWindowPool));
+	assert(pool);
+	return pool;
 }
 
 void updateWindowTitle(Display *display, ManagedWindow *mw) {
@@ -39,10 +41,7 @@ void updateWindowTitle(Display *display, ManagedWindow *mw) {
 
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool) {
 	ManagedWindow *mw = calloc(1, sizeof(ManagedWindow));
-	if (!mw) {
-		perror("malloc");
-		return NULL;
-	}
+	assert(mw);
 
 	mw->resizer = resizer;
 	mw->actualWindow = actualWindow;
@@ -87,6 +86,9 @@ void destroyPool(ManagedWindowPool *pool) {
 	free(pool);
 }
 
+#ifdef DEBUG
+#include <stdio.h>
+
 void printPool(ManagedWindowPool *pool) {
 	fprintf(stderr, "ManagedWindowPool %p {\n", pool);
 	ManagedWindow *this;
@@ -99,3 +101,4 @@ void printPool(ManagedWindowPool *pool) {
 	}
 	fprintf(stderr, "}\n");
 }
+#endif
