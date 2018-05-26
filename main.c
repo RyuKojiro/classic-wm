@@ -80,7 +80,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 }
 
 static int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
-	return attr.height == (TITLEBAR_THICKNESS + 1);
+	return attr.height == COLLAPSED_THICKNESS;
 }
 
 static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -102,8 +102,8 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		/* normal, collapse it */
 		mw->last_w = attr.width;
 		mw->last_h = attr.height;
-		XResizeWindow(display, mw->decorationWindow, attr.width, TITLEBAR_THICKNESS + 1);
-		attr.height = TITLEBAR_THICKNESS + 1;
+		XResizeWindow(display, mw->decorationWindow, attr.width, COLLAPSED_THICKNESS);
+		attr.height = COLLAPSED_THICKNESS;
 		XUnmapWindow(display, mw->actualWindow);
 	}
 
