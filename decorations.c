@@ -68,7 +68,7 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int
 	attr.width += FRAME_HORIZONTAL_THICKNESS;
 	attr.height += FRAME_BOTTOM_THICKNESS;
 
-	/* Draw Time */
+	/* Draw Time! */
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);
 	drawDecorations(display, newParent, gc, title, attr);
@@ -149,7 +149,7 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 
 void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
 	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, 1, 1, attr.width - 3, TITLEBAR_THICKNESS - 2);
+	XFillRectangle(display, window, gc, 1, 1, attr.width - FRAME_HORIZONTAL_THICKNESS, TITLEBAR_THICKNESS - 2);
 }
 
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr){
