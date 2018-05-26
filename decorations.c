@@ -116,20 +116,20 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 
 	/* Draw buttons and title */
 	XSetForeground(display, gc, black);
-	/* Subwindow box - each edge is tucked in one pixel */
+	/* Subwindow box with each edge tucked in */
 	XDrawRectangle(display, window, gc,
-				   FRAME_LEFT_THICKNESS - 1,
-				   TITLEBAR_THICKNESS - 1,
-				   attr.width - FRAME_LEFT_THICKNESS - 1,
-				   attr.height - TITLEBAR_THICKNESS - 1);
+				   FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
+				   TITLEBAR_THICKNESS - FRAME_TUCK_INSET,
+				   attr.width - FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
+				   attr.height - TITLEBAR_THICKNESS - FRAME_TUCK_INSET);
 	/* Shadow */
-	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1);
-	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1);
+	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1); /* bottom */
+	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1); /* left */
 
 	/* White out the shadow ends */
 	XSetForeground(display, gc, white);
-	XDrawPoint(display, window, gc, 0, attr.height - 1);
-	XDrawPoint(display, window, gc, attr.width - 1, 0);
+	XDrawPoint(display, window, gc, 0, attr.height - 1); /* bottom left */
+	XDrawPoint(display, window, gc, attr.width - 1, 0); /* top right */
 	XSetForeground(display, gc, black);
 
 	/* Draw Title */
