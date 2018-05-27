@@ -367,17 +367,15 @@ int main (int argc, const char * argv[]) {
 								 (unsigned int *)&geometry.border_width, (unsigned int *)&geometry.depth);
 
 					/* Redraw titlebar based on active or not */
-					if (mw == pool->active) {
-						DRAW_ACTION(display, mw->decorationWindow, {
+					DRAW_ACTION(display, mw->decorationWindow, {
+						if (mw == pool->active) {
 							drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
-						});
-					}
-					else {
-						DRAW_ACTION(display, mw->decorationWindow, {
+						}
+						else {
 							whiteOutTitleBar(display, mw->decorationBuffer, gc, geometry);
 							drawTitle(display, mw->decorationBuffer, gc, mw->title, geometry);
-						});
-					}
+						}
+					});
 
 					/* Redraw Resizer */
 					drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
