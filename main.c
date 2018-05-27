@@ -261,8 +261,7 @@ int main (int argc, const char * argv[]) {
 
 	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
-	for(;;) {
-		XNextEvent(display, &ev);
+	while(XNextEvent(display, &ev) == 0) {
 		/*
 		warnx("Got event \"%s\"\n", event_names[ev.type]);
 		*/
