@@ -388,7 +388,7 @@ int main (int argc, const char * argv[]) {
 
 				/* If we have a bunch of MotionNotify events queued up, */
 				/* drop all but the last one, since all math is relative */
-/*				while(XCheckTypedEvent(display, MotionNotify, &ev));*/
+				while(XCheckTypedEvent(display, MotionNotify, &ev));
 
 				const int dx = ev.xbutton.x_root - start.x_root;
 				const int dy = ev.xbutton.y_root - start.y_root;
