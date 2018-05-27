@@ -202,6 +202,16 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 	}
 }
 
+static void redrawButtonState(decorationFunction buttonFunction, Display *display, Drawable window, GC gc, int px, int py, int bx, int by, int bw, int bh) {
+	if (pointIsInRect(px, py, bx, by, bw, bh)) {
+		drawCloseButtonDown(display, window, gc, bx, by, bw, bh);
+	}
+	else {
+		/* This ensures the the button is redrawn unclicked */
+		buttonFunction(display, window, gc, bx, by, bw, bh);
+	}
+}
+
 int main (int argc, const char * argv[]) {
 	(void)argc;
 	(void)argv;
@@ -408,29 +418,14 @@ int main (int argc, const char * argv[]) {
 						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
 					} break;
 					case MouseDownStateClose: {
-						if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
-						}
-						else {
-							drawCloseButton(display, ev.xmotion.window, gc, RECT_CLOSE_BTN);
-						}
+						redrawButtonState(drawCloseButton, display, ev.xmotion.window, gc, x, y, RECT_CLOSE_BTN);
 					} break;
 					case MouseDownStateMaximize: {
-						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
-							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_MAX_BTN);
-						}
-						else {
-							drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
-						}
+						redrawButtonState(drawMaximizeButton, display, ev.xmotion.window, gc, x, y, RECT_MAX_BTN);
 					} break;
 #if COLLAPSE_BUTTON_ENABLED
 					case MouseDownStateCollapse: {
-						if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
-							drawCloseButtonDown(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
-						}
-						else {
-							drawCollapseButton(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
-						}
+						redrawButtonState(drawCollapseButton, display, ev.xmotion.window, gc, x, y, RECT_COLLAPSE_BTN);
 					} break;
 #endif
 					default:

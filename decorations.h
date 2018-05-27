@@ -84,6 +84,9 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr);
 int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh);
 
+
+typedef void (decorationFunction)(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
+
 /* Individual Decorations */
 void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr);
 void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h);
