@@ -28,14 +28,14 @@ static unsigned long white;
 static unsigned long black;
 static XFontStruct *font;
 
-int pointIsInRect(int px, int py, int rx, int ry, int rw, int rh) {
+int pointIsInRect(const int px, const int py, const int rx, const int ry, int rw, int rh) {
 	rw++;
 	rh++;
 	return ((px >= rx && px <= (rx + rw)) &&
 	        (py >= ry && py <= (ry + rh)));
 }
 
-Window decorateWindow(Display *display, Drawable window, Window root, GC gc, int x, int y, int width, int height, Window *resizer) {
+Window decorateWindow(Display *display, Drawable window, Window root, GC gc, const int x, const int y, const int width, const int height, Window *resizer) {
 	Window newParent;
 	XSetWindowAttributes attrib;
 	XWindowAttributes attr;
@@ -187,13 +187,13 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 	}
 }
 
-void whiteOutUnderButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h){
+void whiteOutUnderButton(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h){
 	/* White out bg */
 	XSetForeground(display, gc, white);
 	XFillRectangle(display, window, gc, x - 1, y, w + 3, h + 1);
 }
 
-void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
+void drawResizeButton(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	/* Draw Border */
@@ -211,7 +211,7 @@ void drawResizeButton(Display *display, Drawable window, GC gc, int x, int y, in
 	XFillRectangle(display, window, gc, x + 4, y + 4, 5, 5);
 }
 
-void drawMaximizeButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
+void drawMaximizeButton(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	/* Draw Border */
@@ -222,7 +222,7 @@ void drawMaximizeButton(Display *display, Drawable window, GC gc, int x, int y, 
 	XDrawRectangle(display, window, gc, x, y, w / 2, h / 2);
 }
 
-void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
+void drawCloseButton(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	/* Draw Border */
@@ -230,7 +230,7 @@ void drawCloseButton(Display *display, Drawable window, GC gc, int x, int y, int
 	XDrawRectangle(display, window, gc, x, y, w, h);
 }
 
-void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
+void drawCollapseButton(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h) {
 	whiteOutUnderButton(display, window, gc, x, y, w, h);
 
 	/* Draw Border */
@@ -240,7 +240,7 @@ void drawCollapseButton(Display *display, Drawable window, GC gc, int x, int y, 
 	XDrawRectangle(display, window, gc, x, y + w / 2 - 1, w, 2);
 }
 
-void drawCloseButtonDown(Display *display, Drawable window, GC gc, int x, int y, int w, int h) {
+void drawCloseButtonDown(Display *display, Drawable window, GC gc, const int x, const int y, const int w, const int h) {
 	drawCloseButton(display, window, gc, x, y, w, h);
 
 	/* Draw first diag */
