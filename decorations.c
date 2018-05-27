@@ -110,19 +110,19 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	XSetForeground(display, gc, white);
 	/* Subwindow box */
 	XFillRectangle(display, window, gc,
-				   FRAME_RIGHT_THICKNESS,
-				   TITLEBAR_THICKNESS,
-				   attr.width - FRAME_HORIZONTAL_THICKNESS,
-				   attr.height - FRAME_VERTICAL_THICKNESS - 1); /* FIXME: Is this extra 1 necessary? */
+				FRAME_RIGHT_THICKNESS,
+				TITLEBAR_THICKNESS,
+				attr.width - FRAME_HORIZONTAL_THICKNESS,
+				attr.height - FRAME_VERTICAL_THICKNESS - 1); /* FIXME: Is this extra 1 necessary? */
 
 	/* Draw buttons and title */
 	XSetForeground(display, gc, black);
 	/* Subwindow box with each edge tucked in */
 	XDrawRectangle(display, window, gc,
-				   FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
-				   TITLEBAR_THICKNESS - FRAME_TUCK_INSET,
-				   attr.width - FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
-				   attr.height - TITLEBAR_THICKNESS - FRAME_TUCK_INSET);
+				FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
+				TITLEBAR_THICKNESS - FRAME_TUCK_INSET,
+				attr.width - FRAME_LEFT_THICKNESS - FRAME_TUCK_INSET,
+				attr.height - TITLEBAR_THICKNESS - FRAME_TUCK_INSET);
 	/* Shadow */
 	XDrawLine(display, window, gc, 1, attr.height - 1, attr.width, attr.height - 1); /* bottom */
 	XDrawLine(display, window, gc, attr.width - 1, attr.height - 1, attr.width - 1, 1); /* left */
@@ -177,10 +177,10 @@ void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWin
 		/* White out under Title */
 		XSetForeground(display, gc, white);
 		XFillRectangle(display, window, gc,
-					   ((attr.width - twidth)/ 2) - TITLEBAR_TEXT_MARGIN,
-					   4,
-					   twidth + (2 * TITLEBAR_TEXT_MARGIN),
-					   TITLEBAR_CONTROL_SIZE);
+					((attr.width - twidth)/ 2) - TITLEBAR_TEXT_MARGIN,
+					4,
+					twidth + (2 * TITLEBAR_TEXT_MARGIN),
+					TITLEBAR_CONTROL_SIZE);
 
 		/* Draw title */
 		XSetForeground(display, gc, black);
