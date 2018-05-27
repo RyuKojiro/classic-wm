@@ -389,20 +389,23 @@ int main (int argc, const char * argv[]) {
 				/* drop all but the last one, since all math is relative */
 /*				while(XCheckTypedEvent(display, MotionNotify, &ev));*/
 
-				int x = ev.xbutton.x_root - start.x_root;
-				int y = ev.xbutton.y_root - start.y_root;
+				int x = ev.xbutton.x_root - attr.x;
+				int y = ev.xbutton.y_root - attr.y;
+				int dx = ev.xbutton.x_root - start.x_root;
+				int dy = ev.xbutton.y_root - start.y_root;
+
 				switch (downState) {
 					case MouseDownStateResize: {
 						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
 
 						/* Resize */
-						resizeWindow(display, mw, attr.width + x, attr.height + y);
+						resizeWindow(display, mw, attr.width + dx, attr.height + dy);
 						start.x_root = ev.xbutton.x_root;
 						start.y_root = ev.xbutton.y_root;
 
 						/* Persist that info for next iteration */
-						attr.width += x;
-						attr.height += y;
+						attr.width += dx;
+						attr.height += dy;
 
 						/* Redraw Titlebar */
 						DRAW_ACTION(display, mw->decorationWindow, {
@@ -413,7 +416,7 @@ int main (int argc, const char * argv[]) {
 						drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 					} break;
 					case MouseDownStateMove: {
-						XMoveWindow(display, ev.xmotion.window, attr.x + x, attr.y + y);
+						XMoveWindow(display, ev.xmotion.window, attr.x + dx, attr.y + dy);
 					} break;
 					case MouseDownStateClose: {
 						redrawButtonState(drawCloseButton, display, ev.xmotion.window, gc, x, y, RECT_CLOSE_BTN);
