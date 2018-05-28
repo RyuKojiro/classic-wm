@@ -346,8 +346,6 @@ int main (int argc, const char * argv[]) {
 				XRaiseWindow(display, mw->decorationWindow);
 				XGetWindowAttributes(display, mw->decorationWindow, &attr);
 
-				drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
-
 				/* Check what was downed */
 				downState = MouseDownStateUnknown;
 				if (pointIsInRect(x, y, RECT_TITLEBAR)) {
