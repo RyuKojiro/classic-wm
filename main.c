@@ -250,6 +250,13 @@ static void claimAllWindows(Display *display, Window root, ManagedWindowPool *po
 	XFree(children);
 }
 
+static void focusWindow(Display *display, ManagedWindow *mw, GC gc, ManagedWindowPool *pool) {
+	pool->active = mw;
+	lowerAllWindowsInPool(display, pool, gc);
+	XRaiseWindow(display, mw->decorationWindow);
+	XSetInputFocus(display, mw->actualWindow, RevertToNone, CurrentTime);
+}
+
 int main (int argc, const char * argv[]) {
 	(void)argc;
 	(void)argv;
@@ -338,10 +345,11 @@ int main (int argc, const char * argv[]) {
 				}
 
 				/* Raise and activate the window, while lowering all others */
-				pool->active = mw;
-				lowerAllWindowsInPool(display, pool, gc);
-				XRaiseWindow(display, mw->decorationWindow);
+				focusWindow(display, mw, gc, pool);
+
+				/* Redraw the decorations, just in case the focus changed */
 				XGetWindowAttributes(display, mw->decorationWindow, &attr);
+				drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
 
 				/*
 				 * These x,y assignments cannot be consolidated with the other
