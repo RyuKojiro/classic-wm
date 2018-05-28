@@ -203,13 +203,23 @@ static void unclaimWindow(Display *display, Window window, ManagedWindowPool *po
 	}
 }
 
-static void redrawButtonState(decorationFunction buttonFunction, Display *display, Drawable window, GC gc, int px, int py, int bx, int by, int bw, int bh) {
-	if (pointIsInRect(px, py, bx, by, bw, bh)) {
-		drawCloseButtonDown(display, window, gc, bx, by, bw, bh);
-	}
-	else {
-		/* This ensures the the button is redrawn unclicked */
-		buttonFunction(display, window, gc, bx, by, bw, bh);
+static void redrawButtonState(int *stateToken, decorationFunction buttonFunction, Display *display, Drawable window, GC gc, int px, int py, int bx, int by, int bw, int bh) {
+	/*
+	 * Zero is up state (default). So, a zero initialized stateToken shold always
+	 * reflect the correct state for a button that has never seen this function.
+	 */
+	int newState = pointIsInRect(px, py, bx, by, bw, bh);
+
+	if (newState != *stateToken) {
+		if (newState) {
+			drawCloseButtonDown(display, window, gc, bx, by, bw, bh);
+		}
+		else {
+			/* This ensures the the button is redrawn unclicked */
+			buttonFunction(display, window, gc, bx, by, bw, bh);
+		}
+
+		*stateToken = newState;
 	}
 }
 
@@ -438,14 +448,17 @@ int main (int argc, const char * argv[]) {
 						XMoveWindow(display, ev.xmotion.window, attr.x + dx, attr.y + dy);
 					} break;
 					case MouseDownStateClose: {
-						redrawButtonState(drawCloseButton, display, ev.xmotion.window, gc, x, y, RECT_CLOSE_BTN);
+						static int closeButtonStateToken;
+						redrawButtonState(&closeButtonStateToken, drawCloseButton, display, ev.xmotion.window, gc, x, y, RECT_CLOSE_BTN);
 					} break;
 					case MouseDownStateMaximize: {
-						redrawButtonState(drawMaximizeButton, display, ev.xmotion.window, gc, x, y, RECT_MAX_BTN);
+						static int maximizeButtonStateToken;
+						redrawButtonState(&maximizeButtonStateToken, drawMaximizeButton, display, ev.xmotion.window, gc, x, y, RECT_MAX_BTN);
 					} break;
 #if COLLAPSE_BUTTON_ENABLED
 					case MouseDownStateCollapse: {
-						redrawButtonState(drawCollapseButton, display, ev.xmotion.window, gc, x, y, RECT_COLLAPSE_BTN);
+						static int collapseButtonStateToken;
+						redrawButtonState(&collapseButtonStateToken, drawCollapseButton, display, ev.xmotion.window, gc, x, y, RECT_COLLAPSE_BTN);
 					} break;
 #endif
 					default:
