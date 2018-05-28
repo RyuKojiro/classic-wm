@@ -279,6 +279,7 @@ int main (int argc, const char * argv[]) {
 			continue;
 		}
 
+		/* This is a collection of everything that should short-circuit */
 		switch(ev.type) {
 			case DestroyNotify:
 				/*
@@ -300,6 +301,22 @@ int main (int argc, const char * argv[]) {
 				 * let the default case log them.
 				 */
 				continue;
+
+			case ButtonPress: {
+				if (ev.xkey.subwindow == None) {
+					continue;
+				}
+			} break;
+			case Expose: {
+				if(downState == MouseDownStateResize) {
+					continue;
+				}
+			} break;
+			case MapNotify: {
+				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
+					continue;
+				}
+			} break;
 		}
 
 		const int x = ev.xbutton.x_root - attr.x;
@@ -308,63 +325,57 @@ int main (int argc, const char * argv[]) {
 		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		switch (ev.type) {
 			case ButtonPress: {
-				if (ev.xkey.subwindow != None) {
-					ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
-					if (!mw) {
-						break;
-					}
-
-					/* Raise and activate the window, while lowering all others */
-					pool->active = mw;
-					lowerAllWindowsInPool(display, pool, gc);
-					XRaiseWindow(display, mw->decorationWindow);
-					XGetWindowAttributes(display, mw->decorationWindow, &attr);
-
-					drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
-
-					/* Check what was downed */
-					downState = MouseDownStateUnknown;
-					if (pointIsInRect(x, y, RECT_TITLEBAR)) {
-						downState = MouseDownStateMove;
-						/* Grab the pointer */
-						XGrabPointer(display, ev.xbutton.subwindow, True,
-									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
-									 GrabModeAsync, None, None, CurrentTime);
-						start = ev.xbutton;
-					}
-					if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
-					 	drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
-						downState = MouseDownStateClose;
-					}
-					if (pointIsInRect(x, y, RECT_MAX_BTN)) {
-						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
-						downState = MouseDownStateMaximize;
-						lastClickTime = 0;
-					}
-#if COLLAPSE_BUTTON_ENABLED
-					if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
-						drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_COLLAPSE_BTN);
-						downState = MouseDownStateCollapse;
-						lastClickTime = 0;
-					}
-#endif
-					if (!windowAttributesSuggestCollapsed(attr) &&
-						(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
-						/* Grab the pointer */
-						XGrabPointer(display, ev.xbutton.subwindow, True,
-									 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
-									 GrabModeAsync, None, None, CurrentTime);
-						start = ev.xbutton;
-						lastClickTime = 0;
-						downState = MouseDownStateResize;
-					}
-				}
-			} break;
-			case Expose: {
-				if(downState == MouseDownStateResize) {
+				ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+				if (!mw) {
 					break;
 				}
 
+				/* Raise and activate the window, while lowering all others */
+				pool->active = mw;
+				lowerAllWindowsInPool(display, pool, gc);
+				XRaiseWindow(display, mw->decorationWindow);
+				XGetWindowAttributes(display, mw->decorationWindow, &attr);
+
+				drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
+
+				/* Check what was downed */
+				downState = MouseDownStateUnknown;
+				if (pointIsInRect(x, y, RECT_TITLEBAR)) {
+					downState = MouseDownStateMove;
+					/* Grab the pointer */
+					XGrabPointer(display, ev.xbutton.subwindow, True,
+								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+								 GrabModeAsync, None, None, CurrentTime);
+					start = ev.xbutton;
+				}
+				if (pointIsInRect(x, y, RECT_CLOSE_BTN)) {
+					drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_CLOSE_BTN);
+					downState = MouseDownStateClose;
+				}
+				if (pointIsInRect(x, y, RECT_MAX_BTN)) {
+					drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_MAX_BTN);
+					downState = MouseDownStateMaximize;
+					lastClickTime = 0;
+				}
+#if COLLAPSE_BUTTON_ENABLED
+				if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
+					drawCloseButtonDown(display, mw->decorationWindow, gc, RECT_COLLAPSE_BTN);
+					downState = MouseDownStateCollapse;
+					lastClickTime = 0;
+				}
+#endif
+				if (!windowAttributesSuggestCollapsed(attr) &&
+					(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
+					/* Grab the pointer */
+					XGrabPointer(display, ev.xbutton.subwindow, True,
+								 PointerMotionMask|ButtonReleaseMask, GrabModeAsync,
+								 GrabModeAsync, None, None, CurrentTime);
+					start = ev.xbutton;
+					lastClickTime = 0;
+					downState = MouseDownStateResize;
+				}
+			} break;
+			case Expose: {
 				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
 
 				if (mw) {
@@ -488,9 +499,6 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case MapNotify: {
-				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
-					break;
-				}
 				if (!ev.xmap.window) {
 					warnx("Recieved invalid window for event \"%s\"\n", event_names[ev.type]);
 				}
