@@ -45,6 +45,8 @@ struct ManagedWindow_t {
 
 	SLIST_ENTRY(ManagedWindow_t) entries;
 	char *title;
+
+	int collapsed;
 };
 
 typedef struct ManagedWindow_t ManagedWindow;

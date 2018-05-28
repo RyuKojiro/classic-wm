@@ -79,16 +79,25 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 	}
 }
 
-static int windowAttributesSuggestCollapsed(XWindowAttributes attr) {
-	return attr.height == COLLAPSED_THICKNESS;
+static void focusWindow(Display *display, ManagedWindow *mw, GC gc, ManagedWindowPool *pool) {
+	pool->active = mw;
+	lowerAllWindowsInPool(display, pool, gc);
+	XRaiseWindow(display, mw->decorationWindow);
+
+	if (!mw->collapsed) {
+		XSetInputFocus(display, mw->actualWindow, RevertToNone, CurrentTime);
+	}
+	else {
+		XSetInputFocus(display, mw->decorationWindow, RevertToNone, CurrentTime);
+	}
 }
 
-static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
+static void collapseWindow(Display *display, ManagedWindowPool *pool, ManagedWindow *mw, GC gc) {
 	XWindowAttributes attr;
 
 	XGetWindowAttributes(display, mw->decorationWindow, &attr);
 
-	if (windowAttributesSuggestCollapsed(attr)) {
+	if (mw->collapsed) {
 		/* collapsed, uncollapse it */
 		XResizeWindow(display, mw->decorationWindow, mw->last_w, mw->last_h);
 		attr.height = mw->last_h;
@@ -97,6 +106,8 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		/* Redraw Resizer */
 		drawResizeButton(display, mw->resizer, gc, RECT_RESIZE_DRAW);
 		XRaiseWindow(display, mw->resizer);
+
+		mw->collapsed = 0;
 	}
 	else {
 		/* normal, collapse it */
@@ -105,9 +116,12 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		XResizeWindow(display, mw->decorationWindow, attr.width, COLLAPSED_THICKNESS);
 		attr.height = COLLAPSED_THICKNESS;
 		XUnmapWindow(display, mw->actualWindow);
+
+		mw->collapsed = 1;
 	}
 
 	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr, 1);
+	focusWindow(display, mw, gc, pool);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -249,13 +263,6 @@ static void claimAllWindows(Display *display, Window root, ManagedWindowPool *po
 	XFree(children);
 }
 
-static void focusWindow(Display *display, ManagedWindow *mw, GC gc, ManagedWindowPool *pool) {
-	pool->active = mw;
-	lowerAllWindowsInPool(display, pool, gc);
-	XRaiseWindow(display, mw->decorationWindow);
-	XSetInputFocus(display, mw->actualWindow, RevertToNone, CurrentTime);
-}
-
 int main (int argc, const char * argv[]) {
 	(void)argc;
 	(void)argv;
@@ -384,7 +391,7 @@ int main (int argc, const char * argv[]) {
 					lastClickTime = 0;
 				}
 #endif
-				if (!windowAttributesSuggestCollapsed(attr) &&
+				if (!mw->collapsed &&
 					(ev.xbutton.subwindow == mw->resizer || pointIsInRect(x, y, RECT_RESIZE_BTN))) {
 					/* Grab the pointer */
 					XGrabPointer(display, ev.xbutton.subwindow, True,
@@ -492,7 +499,7 @@ int main (int argc, const char * argv[]) {
 
 						if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
-							collapseWindow(display, mw, gc);
+							collapseWindow(display, pool, mw, gc);
 							lastClickTime = 0;
 						}
 					} break;
@@ -510,7 +517,7 @@ int main (int argc, const char * argv[]) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xkey.window, pool);
 
 							if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
-								collapseWindow(display, mw, gc);
+								collapseWindow(display, pool, mw, gc);
 								lastClickTime = 0;
 							}
 							else {
