@@ -329,9 +329,6 @@ int main (int argc, const char * argv[]) {
 			} break;
 		}
 
-		const int x = ev.xbutton.x_root - attr.x;
-		const int y = ev.xbutton.y_root - attr.y;
-
 		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		switch (ev.type) {
 			case ButtonPress: {
@@ -345,6 +342,14 @@ int main (int argc, const char * argv[]) {
 				lowerAllWindowsInPool(display, pool, gc);
 				XRaiseWindow(display, mw->decorationWindow);
 				XGetWindowAttributes(display, mw->decorationWindow, &attr);
+
+				/*
+				 * These x,y assignments cannot be consolidated with the other
+				 * ones, since these don't recycle the previous attr, but the
+				 * other ones do.
+				 */
+				const int x = ev.xbutton.x_root - attr.x;
+				const int y = ev.xbutton.y_root - attr.y;
 
 				/* Check what was downed */
 				downState = MouseDownStateUnknown;
@@ -418,6 +423,9 @@ int main (int argc, const char * argv[]) {
 				/* drop all but the last one, since all math is relative */
 				while(XCheckTypedEvent(display, MotionNotify, &ev));
 
+				const int x = ev.xbutton.x_root - attr.x;
+				const int y = ev.xbutton.y_root - attr.y;
+
 				const int dx = ev.xbutton.x_root - start.x_root;
 				const int dy = ev.xbutton.y_root - start.y_root;
 
@@ -465,6 +473,9 @@ int main (int argc, const char * argv[]) {
 			} break;
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
+
+				const int x = ev.xbutton.x_root - attr.x;
+				const int y = ev.xbutton.y_root - attr.y;
 
 				switch (downState) {
 					case MouseDownStateClose: {
