@@ -213,6 +213,33 @@ static void redrawButtonState(decorationFunction buttonFunction, Display *displa
 	}
 }
 
+static void claimAllWindows(Display *display, Window root, ManagedWindowPool *pool) {
+	/* This should only be called once, and only on startup */
+	static int once;
+	assert(!once++);
+
+	Window parent;
+	Window *children;
+	unsigned int nchildren;
+
+	XQueryTree(display, root, &root, &parent, &children, &nchildren);
+
+	unsigned int i;
+	for (i = 0; i < nchildren; i++) {
+		if (children[i] && children[i] != root) {
+			GC gc = XCreateGC(display, children[i], 0, 0);
+			claimWindow(display, children[i], root, gc, pool);
+			XFlush(display);
+			XFreeGC(display, gc);
+		}
+		else {
+			warnx("Could not find window with XID:%ld\n", children[i]);
+		}
+	}
+
+	XFree(children);
+}
+
 int main (int argc, const char * argv[]) {
 	(void)argc;
 	(void)argv;
@@ -238,27 +265,9 @@ int main (int argc, const char * argv[]) {
 
 	/* Find the window */
 	Window root = RootWindow(display, screen);
-	Window parent;
-	Window *children;
-	unsigned int nchildren;
 
-	XQueryTree(display, root, &root, &parent, &children, &nchildren);
-
-	/* Initial Traverse on Startup */
-	unsigned int i;
-	for (i = 0; i < nchildren; i++) {
-		if (children[i] && children[i] != root) {
-			GC gc = XCreateGC(display, children[i], 0, 0);
-			claimWindow(display, children[i], root, gc, pool);
-			XFlush(display);
-			XFreeGC(display, gc);
-		}
-		else {
-			warnx("Could not find window with XID:%ld\n", children[i]);
-		}
-	}
-
-	XFree(children);
+	/* Initial capture of all windows on startup */
+	claimAllWindows(display, root, pool);
 
 	XSelectInput(display, root, StructureNotifyMask | SubstructureNotifyMask /* CreateNotify */ | ButtonPressMask);
 
