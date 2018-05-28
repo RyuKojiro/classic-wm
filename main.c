@@ -84,12 +84,9 @@ static void focusWindow(Display *display, ManagedWindow *mw, GC gc, ManagedWindo
 	lowerAllWindowsInPool(display, pool, gc);
 	XRaiseWindow(display, mw->decorationWindow);
 
-	if (!mw->collapsed) {
-		XSetInputFocus(display, mw->actualWindow, RevertToNone, CurrentTime);
-	}
-	else {
-		XSetInputFocus(display, mw->decorationWindow, RevertToNone, CurrentTime);
-	}
+	/* If the window is collapsed, move input focus to the decoration window */
+	Window windowToFocus = mw->collapsed ? mw->decorationWindow : mw->actualWindow;
+	XSetInputFocus(display, windowToFocus, RevertToNone, CurrentTime);
 }
 
 static void collapseWindow(Display *display, ManagedWindowPool *pool, ManagedWindow *mw, GC gc) {
