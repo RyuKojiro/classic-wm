@@ -477,9 +477,7 @@ int main (int argc, const char * argv[]) {
 
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
 							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
-							if (mw) {
-								maximizeWindow(display, mw, gc);
-							}
+							maximizeWindow(display, mw, gc);
 						}
 					} break;
 					default: { /* Anywhere else on the titlebar */
