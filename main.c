@@ -181,7 +181,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	*/
 
 	Window deco = decorateWindow(display, window, root, gc, attr.x, attr.y, attr.width, attr.height, &resizer);
-	XUngrabButton(display, 1, AnyModifier, window);
+
 	/*
 	XMoveWindow(display, deco, XDisplayWidth(display, DefaultScreen(display)) - attr.width - 3, NEW_WINDOW_OFFSET);
 	*/
@@ -193,14 +193,12 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 	XSelectInput(display, resizer, ExposureMask);
 
 	pool->active = addWindowToPool(display, deco, window, resizer, pool);
-	lowerAllWindowsInPool(display, pool, gc);
+	focusWindow(display, pool->active, gc, pool);
 
 	if (supplied_return & PMinSize) {
 		pool->active->min_w = attr.min_width;
 		pool->active->min_h = attr.min_height;
 	}
-
-	XRaiseWindow(display, deco);
 }
 
 static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
