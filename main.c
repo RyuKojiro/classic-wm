@@ -489,9 +489,11 @@ int main (int argc, const char * argv[]) {
 					case MouseDownStateCollapse: {
 						drawCollapseButton(display, ev.xmotion.window, gc, RECT_COLLAPSE_BTN);
 
-						ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
-						collapseWindow(display, mw, gc);
-						lastClickTime = 0;
+						if (pointIsInRect(x, y, RECT_COLLAPSE_BTN)) {
+							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
+							collapseWindow(display, mw, gc);
+							lastClickTime = 0;
+						}
 					} break;
 #endif
 					case MouseDownStateMaximize: {
