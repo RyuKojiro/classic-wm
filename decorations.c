@@ -72,7 +72,7 @@ Window decorateWindow(Display *display, Drawable window, Window root, GC gc, con
 	/* Draw Time! */
 	XMapWindow(display, newParent);
 	XFetchName(display, window, &title);
-	drawDecorations(display, newParent, gc, title, attr);
+	drawDecorations(display, newParent, gc, title, attr, 1);
 	drawResizeButton(display, *resizer, gc, RECT_RESIZE_DRAW);
 
 	if (title) {
@@ -89,7 +89,12 @@ void undecorateWindow(Display *display, Window decorationWindow, Window resizer)
 	XDestroyWindow(display, decorationWindow);
 }
 
-void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr) {
+static void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
+	XSetForeground(display, gc, white);
+	XFillRectangle(display, window, gc, 1, 1, attr.width - FRAME_HORIZONTAL_THICKNESS, TITLEBAR_THICKNESS - 2);
+}
+
+void drawDecorations(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr, const int focused) {
 	if (!white || !black) {
 		white = XWhitePixel(display, DefaultScreen(display));
 		black = XBlackPixel(display, DefaultScreen(display));
@@ -100,10 +105,12 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	XSetForeground(display, gc, black);
 	XDrawRectangle(display, window, gc, RECT_TITLEBAR);
 
-	/* Draw texture */
-	int y;
-	for (y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
-		XDrawLine(display, window, gc, 2, y, attr.width - 4, y);
+	if (focused) {
+		/* Draw texture */
+		int y;
+		for (y = TITLEBAR_TEXTURE_START; y < TITLEBAR_TEXTURE_START + TITLEBAR_CONTROL_SIZE; y += TITLEBAR_TEXTURE_SPACE) {
+			XDrawLine(display, window, gc, 2, y, attr.width - 4, y);
+		}
 	}
 
 	/* White out areas for buttons and title */
@@ -136,21 +143,18 @@ void drawDecorations(Display *display, Drawable window, GC gc, const char *title
 	/* Draw Title */
 	drawTitle(display, window, gc, title, attr);
 
-	/* Draw Close Button */
-	drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
+	if (focused) {
+		/* Draw Close Button */
+		drawCloseButton(display, window, gc, RECT_CLOSE_BTN);
 
-	/* Draw Maximize Button */
-	drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
+		/* Draw Maximize Button */
+		drawMaximizeButton(display, window, gc, RECT_MAX_BTN);
 
 #if COLLAPSE_BUTTON_ENABLED
-	/* Draw Collapse Button */
-	drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
+		/* Draw Collapse Button */
+		drawCollapseButton(display, window, gc, RECT_COLLAPSE_BTN);
 #endif
-}
-
-void whiteOutTitleBar(Display *display, Drawable window, GC gc, XWindowAttributes attr){
-	XSetForeground(display, gc, white);
-	XFillRectangle(display, window, gc, 1, 1, attr.width - FRAME_HORIZONTAL_THICKNESS, TITLEBAR_THICKNESS - 2);
+	}
 }
 
 void drawTitle(Display *display, Drawable window, GC gc, const char *title, XWindowAttributes attr){

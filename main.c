@@ -73,8 +73,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 			XWindowAttributes attr;
 			XGetWindowAttributes(display, this->decorationWindow, &attr);
 			DRAW_ACTION(display, this->decorationWindow, {
-				whiteOutTitleBar(display, this->decorationBuffer, gc, attr);
-				drawTitle(display, this->decorationBuffer, gc, this->title, attr);
+				drawDecorations(display, this->decorationBuffer, gc, this->title, attr, 0);
 			});
 		}
 	}
@@ -108,7 +107,7 @@ static void collapseWindow(Display *display, ManagedWindow *mw, GC gc) {
 		XUnmapWindow(display, mw->actualWindow);
 	}
 
-	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+	drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr, 1);
 }
 
 static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
@@ -152,7 +151,7 @@ static void maximizeWindow(Display *display, ManagedWindow *mw, GC gc) {
 
 
 	DRAW_ACTION(display, mw->decorationWindow, {
-		drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
+		drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry, 1);
 	});
 }
 
@@ -349,7 +348,7 @@ int main (int argc, const char * argv[]) {
 
 				/* Redraw the decorations, just in case the focus changed */
 				XGetWindowAttributes(display, mw->decorationWindow, &attr);
-				drawDecorations(display, mw->decorationWindow, gc, mw->title, attr);
+				drawDecorations(display, mw->decorationWindow, gc, mw->title, attr, 1);
 
 				/*
 				 * These x,y assignments cannot be consolidated with the other
@@ -410,13 +409,7 @@ int main (int argc, const char * argv[]) {
 
 					/* Redraw titlebar based on active or not */
 					DRAW_ACTION(display, mw->decorationWindow, {
-						if (mw == pool->active) {
-							drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry);
-						}
-						else {
-							whiteOutTitleBar(display, mw->decorationBuffer, gc, geometry);
-							drawTitle(display, mw->decorationBuffer, gc, mw->title, geometry);
-						}
+						drawDecorations(display, mw->decorationBuffer, gc, mw->title, geometry, (mw == pool->active));
 					});
 
 					/* Redraw Resizer */
@@ -452,7 +445,7 @@ int main (int argc, const char * argv[]) {
 
 						/* Redraw Titlebar */
 						DRAW_ACTION(display, mw->decorationWindow, {
-							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr);
+							drawDecorations(display, mw->decorationBuffer, gc, mw->title, attr, 1);
 						});
 
 						/* Redraw Resizer */
