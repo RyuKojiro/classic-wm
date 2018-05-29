@@ -62,7 +62,7 @@ ManagedWindowPool *createPool(void);
 ManagedWindow *addWindowToPool(Display *display, Window decorationWindow, Window actualWindow, Window resizer, ManagedWindowPool *pool);
 void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, ManagedWindowPool *pool);
 void destroyPool(ManagedWindowPool *pool);
-ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool);
+ManagedWindow *managedWindowForWindow(Display *display, Window window, ManagedWindowPool *pool);
 void printPool(ManagedWindowPool *pool);
 void updateWindowTitle(Display *display, ManagedWindow *mw);
 

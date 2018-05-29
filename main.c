@@ -75,6 +75,7 @@ static void lowerAllWindowsInPool(Display *display, ManagedWindowPool *pool, GC 
 			DRAW_ACTION(display, this->decorationWindow, {
 				drawDecorations(display, this->decorationBuffer, gc, this->title, attr, 0);
 			});
+			XGrabButton(display, 0, AnyModifier, this->actualWindow, 0, ButtonPressMask, GrabModeAsync, GrabModeAsync, None, None);
 		}
 	}
 }
@@ -83,6 +84,7 @@ static void focusWindow(Display *display, ManagedWindow *mw, GC gc, ManagedWindo
 	pool->active = mw;
 	lowerAllWindowsInPool(display, pool, gc);
 	XRaiseWindow(display, mw->decorationWindow);
+	XUngrabButton(display, 0, AnyModifier, mw->actualWindow);
 
 	/* If the window is collapsed, move input focus to the decoration window */
 	Window windowToFocus = mw->collapsed ? mw->decorationWindow : mw->actualWindow;
@@ -202,7 +204,7 @@ static void claimWindow(Display *display, Window window, Window root, GC gc, Man
 }
 
 static void unclaimWindow(Display *display, Window window, ManagedWindowPool *pool) {
-	ManagedWindow *mw = managedWindowForWindow(window, pool);
+	ManagedWindow *mw = managedWindowForWindow(display, window, pool);
 	if (mw) {
 		undecorateWindow(display, mw->decorationWindow, mw->resizer);
 		decorationWindowDestroyed = mw->decorationWindow;
@@ -331,7 +333,7 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case MapNotify: {
-				if (managedWindowForWindow(ev.xmap.window, pool) || ev.xmap.override_redirect) {
+				if (managedWindowForWindow(display, ev.xmap.window, pool) || ev.xmap.override_redirect) {
 					continue;
 				}
 			} break;
@@ -340,7 +342,7 @@ int main (int argc, const char * argv[]) {
 		GC gc = XCreateGC(display, ev.xany.window, 0, 0);
 		switch (ev.type) {
 			case ButtonPress: {
-				ManagedWindow *mw = managedWindowForWindow(ev.xkey.subwindow, pool);
+				ManagedWindow *mw = managedWindowForWindow(display, ev.xkey.subwindow, pool);
 				if (!mw) {
 					break;
 				}
@@ -398,7 +400,7 @@ int main (int argc, const char * argv[]) {
 				}
 			} break;
 			case Expose: {
-				ManagedWindow *mw = managedWindowForWindow(ev.xexpose.window, pool);
+				ManagedWindow *mw = managedWindowForWindow(display, ev.xexpose.window, pool);
 
 				if (mw) {
 					/* TODO: This probably performs terribly, replace me with some caching */
@@ -434,7 +436,7 @@ int main (int argc, const char * argv[]) {
 
 				switch (downState) {
 					case MouseDownStateResize: {
-						ManagedWindow *mw = managedWindowForWindow(start.subwindow, pool);
+						ManagedWindow *mw = managedWindowForWindow(display, start.subwindow, pool);
 
 						/* Resize */
 						resizeWindow(display, mw, attr.width + dx, attr.height + dy);
@@ -503,13 +505,13 @@ int main (int argc, const char * argv[]) {
 						drawMaximizeButton(display, ev.xmotion.window, gc, RECT_MAX_BTN);
 
 						if (pointIsInRect(x, y, RECT_MAX_BTN)) {
-							ManagedWindow *mw = managedWindowForWindow(ev.xmotion.window, pool);
+							ManagedWindow *mw = managedWindowForWindow(display, ev.xmotion.window, pool);
 							maximizeWindow(display, mw, gc);
 						}
 					} break;
 					default: { /* Anywhere else on the titlebar */
 						if (ev.xkey.window != None) {
-							ManagedWindow *mw = managedWindowForWindow(ev.xkey.window, pool);
+							ManagedWindow *mw = managedWindowForWindow(display, ev.xkey.window, pool);
 
 							if (lastClickTime >= (time(NULL) - 1) && lastClickWindow == mw->decorationWindow) {
 								collapseWindow(display, pool, mw, gc);

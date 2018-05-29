@@ -66,11 +66,22 @@ void removeWindowFromPool(Display *display, ManagedWindow *managedWindow, Manage
 	free(managedWindow);
 }
 
-ManagedWindow *managedWindowForWindow(Window window, ManagedWindowPool *pool) {
+ManagedWindow *managedWindowForWindow(Display *display, Window window, ManagedWindowPool *pool) {
 	ManagedWindow *this;
 	SLIST_FOREACH(this, &pool->windows, entries) {
 		if (this->decorationWindow == window || this->actualWindow == window) {
 			return this;
+		}
+
+		unsigned int nchildren;
+		Window *children;
+		Window parent;
+		Window root;
+		XQueryTree(display, this->actualWindow, &root, &parent, &children, &nchildren);
+		for (int i = 0; i < nchildren; i++) {
+			if (children[i] == window) {
+				return this;
+			}
 		}
 	}
 	return NULL;
