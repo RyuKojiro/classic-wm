@@ -475,6 +475,9 @@ int main (int argc, const char * argv[]) {
 					default:
 						break;
 				}
+
+				/* Syncing is required to properly consolidate MotionEvents */
+				XSync(display, False);
 			} break;
 			case ButtonRelease: {
 				XUngrabPointer(display, CurrentTime);
