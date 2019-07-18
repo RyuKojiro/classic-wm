@@ -14,6 +14,7 @@ classic-wm gives you Mac OS [System 6](https://en.wikipedia.org/wiki/System_6) (
 
 		`-*-Chicago-*-*-*--12-*-*-*-*-*-*-*`
 3. Run `classic-wm` as your new window manager
+4. For a richer experience, you can also set your background to alternating B&W pixels using `xsetroot -grey`.
 
 # Collapsing
 You can enable the single-click collapse button shown below by building with `make COLLAPSE_BUTTON_ENABLED=1`.
@@ -23,4 +24,4 @@ You can enable the single-click collapse button shown below by building with `ma
 Even without the collapse button enabled, all windows will support collapsing by double clicking on any portion of the titlebar that isn't a button.
 Collapsing a window does not change its width, but reduces it to consume only as much space as its title bar.
 
-![Collapsed Window](https://gist.githubusercontent.com/RyuKojiro/c24128fe6e30e6d0eb83/raw/fbe93d6c777107506aa1babba382b1dd42c02151/collapsed.png)
+![Collapsed Window](https://gist.githubusercontent.com/RyuKojiro/c24128fe6e30e6d0eb83/raw/fbe93d6c777107506aa1babba382b1dd42c02151/collapsed.png)	
